@@ -44,7 +44,7 @@ public class Session implements Runnable {
     public void start(ExperimentFrame.Binding binding) {
         LOG.info("Starting session '{}' from {}", config.getSessionName(), config.getPath());
         uiBinding = binding;
-        new Thread(this, config.getSessionName()).start();
+        new Thread(this, config.getSessionName().replaceAll(" ", "-")).start();
 
     }
 

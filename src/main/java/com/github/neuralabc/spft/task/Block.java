@@ -37,5 +37,7 @@ public class Block {
         binding.showText(config.getFeedback());
         Thread.sleep(config.getFeedbackDuration());
         binding.showText("");
+
+        LOG.info("\tBlock '{}' terminated", config.getName());
     }
 }
