@@ -1,5 +1,6 @@
 package com.github.neuralabc.spft.ui;
 
+import ch.qos.logback.classic.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +24,10 @@ public class ControlFrame extends JFrame {
     }
 
     public static void main(String[] args) {
+        if (Boolean.getBoolean("debug")) {
+            ch.qos.logback.classic.Logger ourLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("com.github.neuralabc");
+            ourLogger.setLevel(Level.TRACE);
+        }
         if (args.length != 0) {
             if ("--version".equalsIgnoreCase(args[0])) {
                 System.out.println("Version: " + getVersion());

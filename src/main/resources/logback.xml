@@ -5,8 +5,6 @@
         </encoder>
     </appender>
 
-    <logger name="com.github.neuralabc" level="TRACE"/>
-
     <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>

@@ -2,7 +2,7 @@
   <configuration default="false" name="ControlFrame" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="com.github.neuralabc.spft.ui.ControlFrame" />
     <module name="pinch-force" />
-    <option name="VM_PARAMETERS" value="-Ddebug=true -Dlogback.configurationFile=src/test/resources/logback-test.xml" />
+    <option name="VM_PARAMETERS" value="-Ddebug=true" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="ui.*" />
