@@ -32,6 +32,10 @@ public class Block {
 
         for (int currentTrial = 0; currentTrial < config.getTrials().size(); currentTrial++) {
             trials.get(currentTrial).run(binding);
+            if (currentTrial < config.getTrials().size() - 1) {
+                LOG.debug("Starting inter-trial interval");
+                Thread.sleep(config.getInterTrialInterval());
+            }
         }
 
         binding.showText(config.getFeedback());
