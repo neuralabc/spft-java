@@ -1,0 +1,35 @@
+sessionName: Test session
+outputSuffix: out-file.txt
+interBlockInterval: 2000
+blocks:
+  - name: "block1"
+    instructions: "Block1 starting"
+    instructionsDuration: 2000
+    feedback: "Block1 finished"
+    feedbackDuration: 3000
+    interTrialInterval: 1000
+    trials:
+      - name: "1_1"
+        sequenceRef: "pulseLeftOnly"
+      - name: "1_2"
+        sequenceRef: "pulseBoth"
+      - name: "1_3"
+        sequenceRef: "pulseLeftOnly"
+  - name: "block2"
+    instructions: "Block2 starting"
+    instructionsDuration: 2500
+    feedback: "Block2 finished"
+    feedbackDuration: 3500
+    interTrialInterval: 500
+    trials:
+      - name: "2_1"
+        sequenceRef: "pulseLeftOnly"
+
+sequences:
+  pulseLeftOnly:
+    frequency: 5
+    valuesLeft: [ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0, 0, 0, 0, 0, 0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ]
+  pulseBoth:
+    frequency: 5
+    valuesLeft: [ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0, 0, 0, 0, 0, 0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ]
+    valuesRight: [ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0, 0, 0, 0, 0, 0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ]
