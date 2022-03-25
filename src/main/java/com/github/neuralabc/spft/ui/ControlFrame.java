@@ -23,8 +23,14 @@ public class ControlFrame extends JFrame {
     }
 
     public static void main(String[] args) {
-        LOG.info("Starting application version {}", getVersion());
-        SwingUtilities.invokeLater(ControlFrame::createAndShowGui);
+        if (args.length != 0) {
+            if ("--version".equalsIgnoreCase(args[0])) {
+                System.out.println("Version: " + getVersion());
+            }
+        } else {
+            LOG.info("Starting application version {}", getVersion());
+            SwingUtilities.invokeLater(ControlFrame::createAndShowGui);
+        }
     }
 
     private static void createAndShowGui() {
