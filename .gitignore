@@ -63,3 +63,4 @@ stage/
 *~
 \#*#
 .#*
+/src/test/output/

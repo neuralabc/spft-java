@@ -12,6 +12,7 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.prefs.Preferences;
@@ -72,12 +73,10 @@ public class ControlContent {
         Path configPath = Path.of(configPathValue.getText());
         Path outputFile = configPath.getParent().getParent().resolve("output/" + participantId + "_" + currentSession.getConfig().getOutputSuffix());
         if (Files.exists(outputFile)) {
-            LOG.warn("Output file {} already exists", outputFile);
+            LOG.info("Output file {} already exists", outputFile);
             int override = JOptionPane.showConfirmDialog(panel, "Output file already exists. Do you want to overwrite it?", "Output exists", JOptionPane.YES_NO_OPTION);
             if (override == JOptionPane.NO_OPTION) {
                 return;
-            } else {
-                LOG.warn("Overwriting file {}", outputFile);
             }
         }
         outputFileValue.setText(outputFile.toString());
@@ -85,7 +84,11 @@ public class ControlContent {
     }
 
     private void startClicked(ExperimentFrame.Binding binding) {
-        currentSession.start(binding);
+        try {
+            currentSession.start(participantIdValue.getText(), outputFileValue.getText(), binding);
+        } catch (IOException exc) {
+            JOptionPane.showMessageDialog(panel, exc.toString(), "Error writing output", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     public JPanel getPanel() {
