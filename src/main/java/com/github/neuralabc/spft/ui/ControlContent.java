@@ -27,7 +27,7 @@ public class ControlContent {
     private final Preferences prefs;
     private JButton loadButton;
     private JTextField configPathValue;
-    private JTextField trialNameValue;
+    private JTextField sessionNameValue;
     private JTextField outputFileValue;
     private JPanel panel;
     private JButton startButton;
@@ -99,7 +99,7 @@ public class ControlContent {
 
     private void setData(SessionConfig data) {
         configPathValue.setText(data.getPath());
-        trialNameValue.setText(data.getSessionName());
+        sessionNameValue.setText(data.getSessionName());
         outputFileValue.setText("NOT SET");
     }
 

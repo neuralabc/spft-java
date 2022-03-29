@@ -23,7 +23,7 @@ public class Block {
 
     public Block(BlockConfig config, Map<String, SequenceConfig> sequencesPool) {
         this.config = config;
-        trials = config.getTrials().stream().map(x -> new Trial(x, sequencesPool)).collect(Collectors.toList());
+        trials = config.getTrials().stream().map(trialConfig -> new Trial(trialConfig, sequencesPool)).collect(Collectors.toList());
     }
 
     public void run(ExperimentFrame.Binding binding, Path outputFile) throws InterruptedException, IOException {
