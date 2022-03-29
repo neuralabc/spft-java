@@ -46,8 +46,8 @@ public class ControlFrame extends JFrame {
         controlFrame.setVisible(true);
     }
 
-    private static String getVersion() {
-        Package aPackage = ExperimentFrame.class.getPackage();
+    public static String getVersion() {
+        Package aPackage = ControlFrame.class.getPackage();
         String result = aPackage.getImplementationVersion();
         if (result == null || result.isEmpty()) {
             result = "UNKNOWN";
