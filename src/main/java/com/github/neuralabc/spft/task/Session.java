@@ -1,5 +1,6 @@
 package com.github.neuralabc.spft.task;
 
+import com.github.neuralabc.spft.hardware.ForceGauge;
 import com.github.neuralabc.spft.task.config.SessionConfig;
 import com.github.neuralabc.spft.task.exceptions.OutputException;
 import com.github.neuralabc.spft.task.exceptions.SessionException;
@@ -25,10 +26,13 @@ import java.util.stream.Collectors;
  */
 public class Session implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(Session.class);
+    private static final double NANOS_IN_MILLI = 1e6;
     private final SessionConfig config;
     private final List<Block> blocks;
     private ExperimentFrame.Binding uiBinding;
     private Path outputFile;
+    private ForceGauge leftDevice;
+    private ForceGauge rightDevice;
 
     public Session(File selectedFile) {
         Yaml yaml = new Yaml(new Constructor(SessionConfig.class));
@@ -48,8 +52,17 @@ public class Session implements Runnable {
         return config;
     }
 
-    public void start(String participantId, String outputFile, ExperimentFrame.Binding binding) throws IOException {
+    public void start(String participantId, String outputFile, List<String> forceDevicesPorts, ExperimentFrame.Binding binding) throws IOException {
         LOG.info("Starting session '{}' from {}", config.getSessionName(), config.getPath());
+        leftDevice = new ForceGauge("leftDevice", forceDevicesPorts.get(0));
+        if (forceDevicesPorts.get(1).equals(forceDevicesPorts.get(0))) {
+            rightDevice = ForceGauge.DISABLED_DEVICE;
+        } else {
+            rightDevice = new ForceGauge("rightDevice", forceDevicesPorts.get(1));
+        }
+        if (!leftDevice.isEnabled() && !rightDevice.isEnabled()) {
+            LOG.warn("All devices are disabled. There will be no force data");
+        }
         this.outputFile = Path.of(outputFile);
         writeSessionMetadata(participantId);
         uiBinding = binding;
@@ -62,13 +75,13 @@ public class Session implements Runnable {
             LOG.warn("Overwriting file {}", outputFile);
             Files.delete(outputFile);
         }
-        OutputSection output = new OutputSection("Session", outputFile);
+        OutputSection output = new OutputSection("Session");
         output.addEntry("sessionName", config.getSessionName());
         output.addEntry("startTime", Instant.now());
         output.addEntry("configurationFile", config.getPath());
         output.addEntry("configurationChecksum", computeConfigChecksum());
         output.addEntry("participantId", participantId);
-        output.write();
+        output.write(outputFile);
     }
 
     private String computeConfigChecksum() {
@@ -101,12 +114,19 @@ public class Session implements Runnable {
     @Override
     public void run() {
         try {
+            leftDevice.start();
+            rightDevice.start();
+
             for (int currentBlock = 0; currentBlock < config.getBlocks().size(); currentBlock++) {
                 Block nextBlock = blocks.get(currentBlock);
 
                 writeBlockMetadata(nextBlock, currentBlock + 1);
                 nextBlock.run(uiBinding, outputFile);
             }
+            leftDevice.stop();
+            leftDevice.writeOutput(outputFile);
+            rightDevice.stop();
+            rightDevice.writeOutput(outputFile);
             LOG.info("Session '{}' ended successfully", getConfig().getSessionName());
         } catch (InterruptedException e) {
             LOG.error("Interrupted session {}", config.getSessionName(), e);
@@ -116,8 +136,10 @@ public class Session implements Runnable {
     }
 
     private void writeBlockMetadata(Block nextBlock, int blockPosition) throws IOException {
-        OutputSection blockOutput = new OutputSection("Block " + blockPosition, outputFile);
+        OutputSection blockOutput = new OutputSection("Block " + blockPosition);
         blockOutput.addEntry("blockName", nextBlock.getName());
-        blockOutput.write();
+        String startMillis = String.format("%.2f", System.nanoTime() / NANOS_IN_MILLI);
+        blockOutput.addEntry("startTime", startMillis);
+        blockOutput.write(outputFile);
     }
 }

@@ -5,6 +5,7 @@ module com.github.neuralabc.spft {
     requires java.prefs;
     requires forms.rt;
     requires logback.classic;
+    requires com.fazecast.jSerialComm;
 
     exports com.github.neuralabc.spft.task.config to org.yaml.snakeyaml;
 }

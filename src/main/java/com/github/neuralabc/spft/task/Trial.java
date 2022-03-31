@@ -14,7 +14,6 @@ import java.util.Map;
  */
 public class Trial {
     private static final Logger LOG = LoggerFactory.getLogger(Trial.class);
-    private static final double NANOS_IN_MILLI = 1e6;
     private final TrialConfig config;
     private final SequenceConfig sequence;
 
@@ -27,18 +26,14 @@ public class Trial {
         LOG.info("\t\tStarting trial '{}'", config.getName());
         for (int sequencePos = 0; sequencePos < sequence.getLength(); sequencePos++) {
             if (sequence.getValuesLeft() != null) {
-                double referenceLeftValue = sequence.getValuesLeft().get(sequencePos);
-                trialOutput.addEntryElement("referenceLeftValues", referenceLeftValue);
-                String timestamp = String.format("%.2f", System.nanoTime() / NANOS_IN_MILLI);
-                trialOutput.addEntryElement("referenceLeftTimes", timestamp); //TODO: confirm this. it is misleading since it's not the draw timestamp
-                binding.setLeftReferenceValue(referenceLeftValue);
+                double leftReferenceValue = sequence.getValuesLeft().get(sequencePos);
+                trialOutput.addSample("leftReference", leftReferenceValue);
+                binding.setLeftReferenceValue(leftReferenceValue);
             }
             if (sequence.getValuesRight() != null) {
-                double referenceRightValue = sequence.getValuesRight().get(sequencePos);
-                trialOutput.addEntryElement("referenceRightValues", referenceRightValue);
-                String timestamp = String.format("%.2f", System.nanoTime() / NANOS_IN_MILLI);
-                trialOutput.addEntryElement("referenceRightTimes", timestamp);
-                binding.setRightReferenceValue(referenceRightValue);
+                double rightReferenceValue = sequence.getValuesRight().get(sequencePos);
+                trialOutput.addSample("rightReference", rightReferenceValue);
+                binding.setRightReferenceValue(rightReferenceValue);
             }
 
             int delay = 1000 / sequence.getFrequency();

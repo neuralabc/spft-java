@@ -36,10 +36,10 @@ public class Block {
         for (int currentTrial = 0; currentTrial < config.getTrials().size(); currentTrial++) {
             Trial nextTrial = trials.get(currentTrial);
 
-            OutputSection trialOutput = new OutputSection("Trial " + currentTrial + 1, outputFile);
+            OutputSection trialOutput = new OutputSection("Trial " + (currentTrial + 1));
             trialOutput.addEntry("trialName", nextTrial.getName());
             nextTrial.run(binding, trialOutput);
-            trialOutput.write();
+            trialOutput.write(outputFile);
             if (currentTrial < config.getTrials().size() - 1) {
                 LOG.debug("Starting inter-trial interval");
                 Thread.sleep(config.getInterTrialInterval());
