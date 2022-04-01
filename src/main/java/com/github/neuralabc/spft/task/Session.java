@@ -67,7 +67,6 @@ public class Session implements Runnable {
         writeSessionMetadata(sessionParameters);
         uiBinding = binding;
         new Thread(this, config.getSessionName().replaceAll(" ", "-")).start();
-
     }
 
     private void writeSessionMetadata(SessionParameters sessionParameters) throws IOException {
@@ -129,6 +128,7 @@ public class Session implements Runnable {
 
                 writeBlockMetadata(nextBlock);
                 nextBlock.run(uiBinding, outputFile);
+                writeBlockEndMetadata();
             }
             leftDevice.stop();
             rightDevice.stop();
@@ -152,6 +152,13 @@ public class Session implements Runnable {
         String startMillis = String.format("%.2f", System.nanoTime() / NANOS_IN_MILLI);
         blockOutput.addEntry("  startTimestamp", startMillis);
         blockOutput.addEntry("  trials", "");
+        blockOutput.write(outputFile);
+    }
+
+    private void writeBlockEndMetadata() throws IOException {
+        OutputSection blockOutput = new OutputSection(1);
+        String endMillis = String.format("%.2f", System.nanoTime() / NANOS_IN_MILLI);
+        blockOutput.addEntry("  endTimestamp", endMillis);
         blockOutput.write(outputFile);
     }
 
