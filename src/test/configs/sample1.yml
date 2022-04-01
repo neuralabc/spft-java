@@ -1,5 +1,5 @@
 sessionName: Test session
-outputSuffix: out-file.txt
+outputSuffix: out-file.yml
 interBlockInterval: 2000
 blocks:
   - name: "block1"
@@ -9,11 +9,11 @@ blocks:
     feedbackDuration: 3000
     interTrialInterval: 1000
     trials:
-      - name: "1_1"
+      - name: "1_uniManualLeft"
         sequenceRef: "pulseLeftOnly"
-      - name: "1_2"
+      - name: "2_biManual"
         sequenceRef: "pulseBoth"
-      - name: "1_3"
+      - name: "3_uniManualLeft"
         sequenceRef: "pulseLeftOnly"
   - name: "block2"
     instructions: "Block2 starting"
@@ -22,7 +22,7 @@ blocks:
     feedbackDuration: 3500
     interTrialInterval: 500
     trials:
-      - name: "2_1"
+      - name: "1_uniManualLeft"
         sequenceRef: "pulseLeftOnly"
 
 sequences:

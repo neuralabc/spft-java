@@ -43,9 +43,9 @@ public class ForceGauge implements Runnable {
         if (!deviceName.equals(DISABLED) && !portName.equals(DISABLED)) {
             commPort = SerialPort.getCommPort(portName);
             commPort.allowElevatedPermissionsRequest();
-            output = new OutputSection("Force gauge");
-            output.addEntry("deviceName", deviceName);
-            output.addEntry("portName", portName);
+            output = new OutputSection(1);
+            output.addEntry("- deviceName", deviceName);
+            output.addEntry("  portName", portName);
         } else {
             commPort = null;
             output = null;
@@ -111,7 +111,7 @@ public class ForceGauge implements Runnable {
                                 binding.setRightForceValue(normalizedValue);
                             }
 
-                            output.addSample(name, normalizedValue);
+                            output.addSample(normalizedValue);
                             builder = new StringBuilder(8);
                         }
                     } else {

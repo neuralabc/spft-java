@@ -75,7 +75,7 @@ public class Session implements Runnable {
             LOG.warn("Overwriting file {}", outputFile);
             Files.delete(outputFile);
         }
-        OutputSection output = new OutputSection("Session");
+        OutputSection output = new OutputSection();
         output.addEntry("sessionName", config.getSessionName());
         output.addEntry("startTime", Instant.now());
         output.addEntry("configurationFile", config.getPath());
@@ -87,6 +87,7 @@ public class Session implements Runnable {
         if (sessionParameters.maximumRightContraction != -1) {
             output.addEntry("maximumRightVoluntaryContraction", sessionParameters.maximumRightContraction);
         }
+        output.addEntry("blocks", "");
         output.write(outputFile);
     }
 
@@ -126,12 +127,16 @@ public class Session implements Runnable {
             for (int currentBlock = 0; currentBlock < config.getBlocks().size(); currentBlock++) {
                 Block nextBlock = blocks.get(currentBlock);
 
-                writeBlockMetadata(nextBlock, currentBlock + 1);
+                writeBlockMetadata(nextBlock);
                 nextBlock.run(uiBinding, outputFile);
             }
             leftDevice.stop();
-            leftDevice.writeOutput(outputFile);
             rightDevice.stop();
+
+            OutputSection devices = new OutputSection();
+            devices.addEntry("devices", "");
+            devices.write(outputFile);
+            leftDevice.writeOutput(outputFile);
             rightDevice.writeOutput(outputFile);
             LOG.info("Session '{}' ended successfully", getConfig().getSessionName());
         } catch (InterruptedException e) {
@@ -141,11 +146,12 @@ public class Session implements Runnable {
         }
     }
 
-    private void writeBlockMetadata(Block nextBlock, int blockPosition) throws IOException {
-        OutputSection blockOutput = new OutputSection("Block " + blockPosition);
-        blockOutput.addEntry("blockName", nextBlock.getName());
+    private void writeBlockMetadata(Block nextBlock) throws IOException {
+        OutputSection blockOutput = new OutputSection(1);
+        blockOutput.addEntry("- blockName", nextBlock.getName());
         String startMillis = String.format("%.2f", System.nanoTime() / NANOS_IN_MILLI);
-        blockOutput.addEntry("startTime", startMillis);
+        blockOutput.addEntry("  startTime", startMillis);
+        blockOutput.addEntry("  trials", "");
         blockOutput.write(outputFile);
     }
 
