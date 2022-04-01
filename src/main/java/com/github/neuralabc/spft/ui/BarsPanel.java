@@ -84,6 +84,7 @@ public class BarsPanel extends JPanel {
     }
 
     private void changeForceHeight(JPanel bar, double normalizedValue) {
+        LOG.trace("Changing force height of '{}' to {}", bar.getName(), normalizedValue);
         int newHeight = (int) Math.round(MAX_HEIGHT * normalizedValue);
         newHeight = Math.min(newHeight, MAX_HEIGHT);
         newHeight = Math.max(newHeight, MIN_HEIGHT);
