@@ -52,25 +52,25 @@ public class Session implements Runnable {
         return config;
     }
 
-    public void start(String participantId, String outputFile, List<String> forceDevicesPorts, ExperimentFrame.Binding binding) throws IOException {
+    public void start(SessionParameters sessionParameters, ExperimentFrame.Binding binding) throws IOException {
         LOG.info("Starting session '{}' from {}", config.getSessionName(), config.getPath());
-        leftDevice = new ForceGauge("leftDevice", forceDevicesPorts.get(0));
-        if (forceDevicesPorts.get(1).equals(forceDevicesPorts.get(0))) {
+        leftDevice = new ForceGauge("leftDevice", sessionParameters.forceDevicesPorts().get(0), sessionParameters.maximumContraction);
+        if (sessionParameters.forceDevicesPorts().get(1).equals(sessionParameters.forceDevicesPorts().get(0))) {
             rightDevice = ForceGauge.DISABLED_DEVICE;
         } else {
-            rightDevice = new ForceGauge("rightDevice", forceDevicesPorts.get(1));
+            rightDevice = new ForceGauge("rightDevice", sessionParameters.forceDevicesPorts().get(1), sessionParameters.maximumContraction);
         }
         if (!leftDevice.isEnabled() && !rightDevice.isEnabled()) {
             LOG.warn("All devices are disabled. There will be no force data");
         }
-        this.outputFile = Path.of(outputFile);
-        writeSessionMetadata(participantId);
+        this.outputFile = Path.of(sessionParameters.outputFile());
+        writeSessionMetadata(sessionParameters);
         uiBinding = binding;
         new Thread(this, config.getSessionName().replaceAll(" ", "-")).start();
 
     }
 
-    private void writeSessionMetadata(String participantId) throws IOException {
+    private void writeSessionMetadata(SessionParameters sessionParameters) throws IOException {
         if (Files.exists(outputFile)) {
             LOG.warn("Overwriting file {}", outputFile);
             Files.delete(outputFile);
@@ -80,7 +80,8 @@ public class Session implements Runnable {
         output.addEntry("startTime", Instant.now());
         output.addEntry("configurationFile", config.getPath());
         output.addEntry("configurationChecksum", computeConfigChecksum());
-        output.addEntry("participantId", participantId);
+        output.addEntry("participantId", sessionParameters.participantId);
+        output.addEntry("maximumVoluntaryContraction", sessionParameters.maximumContraction);
         output.write(outputFile);
     }
 
@@ -141,5 +142,9 @@ public class Session implements Runnable {
         String startMillis = String.format("%.2f", System.nanoTime() / NANOS_IN_MILLI);
         blockOutput.addEntry("startTime", startMillis);
         blockOutput.write(outputFile);
+    }
+
+    public record SessionParameters(String participantId, String outputFile, List<String> forceDevicesPorts,
+                                    int maximumContraction) {
     }
 }

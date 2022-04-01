@@ -1,6 +1,7 @@
 package com.github.neuralabc.spft.hardware;
 
 import com.fazecast.jSerialComm.SerialPort;
+import com.github.neuralabc.spft.task.exceptions.ForceGaugeException;
 import com.github.neuralabc.spft.task.output.OutputSection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,16 +25,18 @@ public class ForceGauge implements Runnable {
     /**
      * A device that doesn't do anything
      */
-    public static final ForceGauge DISABLED_DEVICE = new ForceGauge(DISABLED, DISABLED);
+    public static final ForceGauge DISABLED_DEVICE = new ForceGauge(DISABLED, DISABLED, 1);
     private static final int MAX_ERROR_COUNT = 100;
     private final String name;
     private final SerialPort commPort;
     private final OutputSection output;
     private Thread thread;
     private int errorCount;
+    private final int normalizationFactor;
 
-    public ForceGauge(String deviceName, String portName) {
+    public ForceGauge(String deviceName, String portName, int normalizationFactor) {
         name = deviceName;
+        this.normalizationFactor = normalizationFactor;
         if (!deviceName.equals(DISABLED) && !portName.equals(DISABLED)) {
             commPort = SerialPort.getCommPort(portName);
             commPort.allowElevatedPermissionsRequest();
@@ -82,7 +85,9 @@ public class ForceGauge implements Runnable {
     public void run() {
         try {
             double largestValue = -1;
-            commPort.openPort();
+            if (!commPort.openPort()) {
+                throw new ForceGaugeException(commPort.getLastErrorCode(), "Error opening port " + commPort.getSystemPortName() + " for device " + name);
+            }
             commPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 0, 0);
             StringBuilder builder = new StringBuilder(8);
             while (!thread.isInterrupted()) {
@@ -95,7 +100,8 @@ public class ForceGauge implements Runnable {
                             if (sampleValue > largestValue) {
                                 largestValue = sampleValue;
                             }
-                            output.addSample(name, sampleValue);
+                            double normalizedValue = sampleValue / normalizationFactor;
+                            output.addSample(name, normalizedValue);
                             builder = new StringBuilder(8);
                         }
                     } else {
@@ -103,7 +109,7 @@ public class ForceGauge implements Runnable {
                     }
                 } else if (readBytes == -1) {
                     if (errorCount >= 0 && errorCount < MAX_ERROR_COUNT) {
-                        LOG.error("Error #{} reading from device {}", errorCount, this);
+                        LOG.error("Error #{} reading from device {}. Error code: {}", errorCount, this, commPort.getLastErrorCode());
                     }
                     errorCount++;
                 }
@@ -111,6 +117,8 @@ public class ForceGauge implements Runnable {
             LOG.info("Largest raw value in session: {}", largestValue);
             System.out.println("######\nLargest raw value in session: " + largestValue + "\n######");
             LOG.debug("Terminating device thread cleanly");
+        } catch (ForceGaugeException exc) {
+            LOG.error("Data acquisition for {} crashed. Comm port error code = {}", this, exc.getDeviceErrorCode(), exc);
         } catch (Exception exc) {
             LOG.error("Data acquisition crashed on {}", this, exc);
         } finally {
