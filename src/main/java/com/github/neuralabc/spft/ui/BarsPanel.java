@@ -54,29 +54,39 @@ public class BarsPanel extends JPanel {
         add(rightForceBar);
     }
 
-    public void setLeftReferenceValue(double value) {
-        changeReferenceHeight(leftReferenceBar, value);
+    public void setLeftReferenceValue(double normalizedValue) {
+        changeReferenceHeight(leftReferenceBar, normalizedValue);
     }
 
-    public void setRightReferenceValue(double value) {
-        changeReferenceHeight(rightReferenceBar, value);
+    public void setRightReferenceValue(double normalizedValue) {
+        changeReferenceHeight(rightReferenceBar, normalizedValue);
     }
 
-    public void setLeftForceValue(double value) {
+    public void setLeftForceValue(double normalizedValue) {
+        changeForceHeight(leftForceBar, normalizedValue);
     }
 
-    public void setRightForceValue(double value) {
+    public void setRightForceValue(double normalizedValue) {
+        changeForceHeight(rightForceBar, normalizedValue);
     }
 
-    private void changeReferenceHeight(JPanel bar, double value) {
-        if (value < 0 || value > 1) {
+    private void changeReferenceHeight(JPanel bar, double normalizedValue) {
+        if (normalizedValue < 0 || normalizedValue > 1) {
             throw new IllegalArgumentException("Sequence values have to be between 0.0 and 1.0");
         }
-        LOG.trace("Changing reference height of '{}' to {}", bar.getName(), value);
+        LOG.trace("Changing reference height of '{}' to {}", bar.getName(), normalizedValue);
 
         final int barRange = MAX_HEIGHT - MIN_HEIGHT;
-        int newHeight = (int) Math.round(barRange * value);
+        int newHeight = (int) Math.round(barRange * normalizedValue);
         newHeight += MIN_HEIGHT;
+        bar.setPreferredSize(new Dimension(WIDTH, newHeight));
+        bar.revalidate();
+    }
+
+    private void changeForceHeight(JPanel bar, double normalizedValue) {
+        int newHeight = (int) Math.round(MAX_HEIGHT * normalizedValue);
+        newHeight = Math.min(newHeight, MAX_HEIGHT);
+        newHeight = Math.max(newHeight, MIN_HEIGHT);
         bar.setPreferredSize(new Dimension(WIDTH, newHeight));
         bar.revalidate();
     }

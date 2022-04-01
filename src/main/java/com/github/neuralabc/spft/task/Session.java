@@ -54,11 +54,11 @@ public class Session implements Runnable {
 
     public void start(SessionParameters sessionParameters, ExperimentFrame.Binding binding) throws IOException {
         LOG.info("Starting session '{}' from {}", config.getSessionName(), config.getPath());
-        leftDevice = new ForceGauge("leftDevice", sessionParameters.forceDevicesPorts().get(0), sessionParameters.maximumContraction);
+        leftDevice = new ForceGauge("leftDevice", sessionParameters.forceDevicesPorts().get(0), sessionParameters.maximumContraction, binding);
         if (sessionParameters.forceDevicesPorts().get(1).equals(sessionParameters.forceDevicesPorts().get(0))) {
             rightDevice = ForceGauge.DISABLED_DEVICE;
         } else {
-            rightDevice = new ForceGauge("rightDevice", sessionParameters.forceDevicesPorts().get(1), sessionParameters.maximumContraction);
+            rightDevice = new ForceGauge("rightDevice", sessionParameters.forceDevicesPorts().get(1), sessionParameters.maximumContraction, binding);
         }
         if (!leftDevice.isEnabled() && !rightDevice.isEnabled()) {
             LOG.warn("All devices are disabled. There will be no force data");

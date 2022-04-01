@@ -35,12 +35,20 @@ public class ExperimentFrame extends JFrame {
             textPanel.setText(text);
         }
 
-        public void setLeftReferenceValue(double value) {
-            barsPanel.setLeftReferenceValue(value);
+        public void setLeftReferenceValue(double normalizedValue) {
+            barsPanel.setLeftReferenceValue(normalizedValue);
         }
 
-        public void setRightReferenceValue(double value) {
-            barsPanel.setRightReferenceValue(value);
+        public void setRightReferenceValue(double normalizedValue) {
+            barsPanel.setRightReferenceValue(normalizedValue);
+        }
+
+        public void setLeftForceValue(double normalizedValue) {
+            barsPanel.setLeftForceValue(normalizedValue);
+        }
+
+        public void setRightForceValue(double normalizedValue) {
+            barsPanel.setRightForceValue(normalizedValue);
         }
     }
 }

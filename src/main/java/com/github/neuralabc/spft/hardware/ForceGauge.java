@@ -3,6 +3,7 @@ package com.github.neuralabc.spft.hardware;
 import com.fazecast.jSerialComm.SerialPort;
 import com.github.neuralabc.spft.task.exceptions.ForceGaugeException;
 import com.github.neuralabc.spft.task.output.OutputSection;
+import com.github.neuralabc.spft.ui.ExperimentFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,7 @@ public class ForceGauge implements Runnable {
     /**
      * A device that doesn't do anything
      */
-    public static final ForceGauge DISABLED_DEVICE = new ForceGauge(DISABLED, DISABLED, 1);
+    public static final ForceGauge DISABLED_DEVICE = new ForceGauge(DISABLED, DISABLED, 1, null);
     private static final int MAX_ERROR_COUNT = 100;
     private final String name;
     private final SerialPort commPort;
@@ -33,10 +34,12 @@ public class ForceGauge implements Runnable {
     private Thread thread;
     private int errorCount;
     private final int normalizationFactor;
+    private final ExperimentFrame.Binding binding;
 
-    public ForceGauge(String deviceName, String portName, int normalizationFactor) {
+    public ForceGauge(String deviceName, String portName, int normalizationFactor, ExperimentFrame.Binding binding) {
         name = deviceName;
         this.normalizationFactor = normalizationFactor;
+        this.binding = binding;
         if (!deviceName.equals(DISABLED) && !portName.equals(DISABLED)) {
             commPort = SerialPort.getCommPort(portName);
             commPort.allowElevatedPermissionsRequest();
@@ -100,7 +103,14 @@ public class ForceGauge implements Runnable {
                             if (sampleValue > largestValue) {
                                 largestValue = sampleValue;
                             }
+
                             double normalizedValue = sampleValue / normalizationFactor;
+                            if (name.contains("left")) {
+                                binding.setLeftForceValue(normalizedValue);
+                            } else {
+                                binding.setRightForceValue(normalizedValue);
+                            }
+
                             output.addSample(name, normalizedValue);
                             builder = new StringBuilder(8);
                         }
@@ -114,8 +124,14 @@ public class ForceGauge implements Runnable {
                     errorCount++;
                 }
             }
-            LOG.info("Largest raw value in session: {}", largestValue);
-            System.out.println("######\nLargest raw value in session: " + largestValue + "\n######");
+            if (name.contains("left")) {
+                binding.setLeftForceValue(1.0);
+            } else {
+                binding.setRightForceValue(1.0);
+            }
+
+            LOG.info("Largest raw value in device '{}': {}", name, largestValue);
+            System.out.println("######\nLargest raw value in device '" + name + "': " + largestValue + "\n######");
             LOG.debug("Terminating device thread cleanly");
         } catch (ForceGaugeException exc) {
             LOG.error("Data acquisition for {} crashed. Comm port error code = {}", this, exc.getDeviceErrorCode(), exc);
