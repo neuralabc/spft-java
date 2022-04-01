@@ -87,7 +87,7 @@ public class ForceGauge implements Runnable {
     @Override
     public void run() {
         try {
-            double largestValue = -1;
+            int largestValue = -1;
             if (!commPort.openPort()) {
                 throw new ForceGaugeException(commPort.getLastErrorCode(), "Error opening port " + commPort.getSystemPortName() + " for device " + name);
             }
@@ -99,12 +99,12 @@ public class ForceGauge implements Runnable {
                 if (readBytes == sample.length) {
                     if (sample[0] == '\r' || sample[0] == '\n') {
                         if (!builder.isEmpty()) {
-                            double sampleValue = Double.parseDouble(builder.toString());
+                            int sampleValue = Integer.parseInt(builder.toString());
                             if (sampleValue > largestValue) {
                                 largestValue = sampleValue;
                             }
 
-                            double normalizedValue = sampleValue / normalizationFactor;
+                            double normalizedValue = sampleValue / (double) normalizationFactor;
                             if (name.contains("left")) {
                                 binding.setLeftForceValue(normalizedValue);
                             } else {
