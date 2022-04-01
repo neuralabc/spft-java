@@ -150,7 +150,7 @@ public class Session implements Runnable {
         OutputSection blockOutput = new OutputSection(1);
         blockOutput.addEntry("- blockName", nextBlock.getName());
         String startMillis = String.format("%.2f", System.nanoTime() / NANOS_IN_MILLI);
-        blockOutput.addEntry("  startTime", startMillis);
+        blockOutput.addEntry("  startTimestamp", startMillis);
         blockOutput.addEntry("  trials", "");
         blockOutput.write(outputFile);
     }
