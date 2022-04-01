@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.prefs.Preferences;
 import java.util.List;
 
@@ -59,7 +60,8 @@ public class ControlContent {
         participantIdValue.addActionListener(e -> participantIdChanged(e.getActionCommand()));
         maximumLeftContractionValue.addActionListener(e -> mvcChanged(e.getActionCommand()));
         maximumRightContractionValue.addActionListener(e -> mvcChanged(e.getActionCommand()));
-        NumberFormat format = NumberFormat.getIntegerInstance();
+        NumberFormat format = NumberFormat.getIntegerInstance(Locale.CANADA);
+        format.setGroupingUsed(false);
         NumberFormatter formatter = new NumberFormatter(format);
         DefaultFormatterFactory factory = new DefaultFormatterFactory(formatter);
         maximumLeftContractionValue.setFormatterFactory(factory);
