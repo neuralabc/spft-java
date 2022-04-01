@@ -14,6 +14,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,6 +26,7 @@ import java.util.List;
 /**
  * Tool-generated class for the control window
  */
+@SuppressWarnings("ClassWithTooManyFields")
 public class ControlContent {
     private static final Logger LOG = LoggerFactory.getLogger(ControlContent.class);
     private static final String LAST_FOLDER = "lastFolder";
@@ -42,21 +44,26 @@ public class ControlContent {
     private JLabel versionLabel;
     private JComboBox<String> leftDevice;
     private JComboBox<String> rightDevice;
-    private JFormattedTextField maximumContractionValue;
+    private JFormattedTextField maximumLeftContractionValue;
+    private JFormattedTextField maximumRightContractionValue;
     private final JFileChooser fileChooser;
     private Session currentSession;
 
     public ControlContent(ExperimentFrame.Binding binding) {
         prefs = Preferences.userRoot().node(getClass().getName());
         fileChooser = new JFileChooser(prefs.get(LAST_FOLDER, new File(".").getAbsolutePath()));
-        fileChooser.setFileFilter(new FileNameExtensionFilter("YAML configurations", "yml", "yaml"));
+        fileChooser.setFileFilter(new FileNameExtensionFilter("YAML configurations (*.yml, *.yaml)", "yml", "yaml"));
         loadButton.addActionListener(e -> loadClicked());
+        leftDevice.addActionListener(this::deviceSelectionChanged);
+        rightDevice.addActionListener(this::deviceSelectionChanged);
         participantIdValue.addActionListener(e -> participantIdChanged(e.getActionCommand()));
-        maximumContractionValue.addActionListener(e -> mvcChanged(e.getActionCommand()));
+        maximumLeftContractionValue.addActionListener(e -> mvcChanged(e.getActionCommand()));
+        maximumRightContractionValue.addActionListener(e -> mvcChanged(e.getActionCommand()));
         NumberFormat format = NumberFormat.getIntegerInstance();
         NumberFormatter formatter = new NumberFormatter(format);
         DefaultFormatterFactory factory = new DefaultFormatterFactory(formatter);
-        maximumContractionValue.setFormatterFactory(factory);
+        maximumLeftContractionValue.setFormatterFactory(factory);
+        maximumRightContractionValue.setFormatterFactory(factory);
         startButton.addActionListener(e -> startClicked(binding));
         versionLabel.setText("Version: " + ControlFrame.getVersion());
 
@@ -89,11 +96,29 @@ public class ControlContent {
                 setData(currentSession.getConfig());
                 participantIdValue.setEnabled(true);
                 participantIdValue.setText("");
-                maximumContractionValue.setEnabled(true);
-                maximumContractionValue.setText("");
+                maximumLeftContractionValue.setEnabled(true);
+                maximumLeftContractionValue.setText("");
+                maximumRightContractionValue.setEnabled(true);
+                maximumRightContractionValue.setText("");
                 prefs.put(LAST_FOLDER, selectedFile.getParent());
             } catch (SessionException exc) {
                 JOptionPane.showMessageDialog(panel, exc.getMessage(), "Error creating session", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void deviceSelectionChanged(ActionEvent event) {
+        if (event.getSource() == leftDevice) {
+            boolean editable = !ForceGauge.DISABLED.equals(leftDevice.getSelectedItem());
+            maximumLeftContractionValue.setEditable(editable);
+            if (!editable) {
+                maximumLeftContractionValue.setText("");
+            }
+        } else {
+            boolean editable = !ForceGauge.DISABLED.equals(rightDevice.getSelectedItem());
+            maximumRightContractionValue.setEditable(editable);
+            if (!editable) {
+                maximumRightContractionValue.setText("");
             }
         }
     }
@@ -104,8 +129,10 @@ public class ControlContent {
         startButton.setEnabled(false);
         participantIdValue.setEnabled(false);
         participantIdValue.setText("");
-        maximumContractionValue.setEnabled(false);
-        maximumContractionValue.setText("");
+        maximumLeftContractionValue.setEnabled(false);
+        maximumLeftContractionValue.setText("");
+        maximumRightContractionValue.setEnabled(false);
+        maximumRightContractionValue.setText("");
     }
 
     private void participantIdChanged(String participantId) {
@@ -126,8 +153,10 @@ public class ControlContent {
         boolean ready = false;
         if (participantIdValue.getText().isEmpty()) {
             participantIdValue.requestFocusInWindow();
-        } else if (maximumContractionValue.getText().isEmpty()) {
-            maximumContractionValue.requestFocusInWindow();
+        } else if (!ForceGauge.DISABLED.equals(leftDevice.getSelectedItem()) && maximumLeftContractionValue.getText().isEmpty()) {
+            maximumLeftContractionValue.requestFocusInWindow();
+        } else if (!ForceGauge.DISABLED.equals(rightDevice.getSelectedItem()) && maximumRightContractionValue.getText().isEmpty()) {
+            maximumRightContractionValue.requestFocusInWindow();
         } else {
             ready = true;
             startButton.requestFocusInWindow();
@@ -150,7 +179,9 @@ public class ControlContent {
             prefs.put(LAST_RIGHT_DEVICE, rightItem);
 
             List<String> usedDevices = List.of(leftItem, rightItem);
-            Session.SessionParameters sessionParameters = new Session.SessionParameters(participantIdValue.getText(), outputFileValue.getText(), usedDevices, Integer.parseInt(maximumContractionValue.getText()));
+            int maximumLeftContraction = maximumLeftContractionValue.getText().isEmpty() ? -1 : Integer.parseInt(maximumLeftContractionValue.getText());
+            int maximumRightContraction = maximumRightContractionValue.getText().isEmpty() ? -1 : Integer.parseInt(maximumRightContractionValue.getText());
+            Session.SessionParameters sessionParameters = new Session.SessionParameters(participantIdValue.getText(), outputFileValue.getText(), usedDevices, maximumLeftContraction, maximumRightContraction);
             currentSession.start(sessionParameters, binding);
         } catch (IOException exc) {
             JOptionPane.showMessageDialog(panel, exc.toString(), "Error writing output", JOptionPane.ERROR_MESSAGE);
@@ -183,7 +214,7 @@ public class ControlContent {
      */
     private void $$$setupUI$$$() {
         panel = new JPanel();
-        panel.setLayout(new GridLayoutManager(9, 2, new Insets(10, 10, 10, 10), -1, -1));
+        panel.setLayout(new GridLayoutManager(10, 2, new Insets(10, 10, 10, 10), -1, -1));
         final JLabel label1 = new JLabel();
         label1.setText("Configuration");
         panel.add(label1, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -233,14 +264,23 @@ public class ControlContent {
         participantIdValue.setEnabled(false);
         panel.add(participantIdValue, new GridConstraints(7, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         final JLabel label7 = new JLabel();
-        label7.setText("MVC");
+        label7.setText("Left MVC");
         panel.add(label7, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        maximumContractionValue = new JFormattedTextField();
-        maximumContractionValue.setColumns(5);
-        maximumContractionValue.setDropMode(DropMode.INSERT);
-        maximumContractionValue.setEnabled(false);
-        maximumContractionValue.setFocusLostBehavior(2);
-        panel.add(maximumContractionValue, new GridConstraints(8, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        maximumLeftContractionValue = new JFormattedTextField();
+        maximumLeftContractionValue.setColumns(5);
+        maximumLeftContractionValue.setDropMode(DropMode.INSERT);
+        maximumLeftContractionValue.setEnabled(false);
+        maximumLeftContractionValue.setFocusLostBehavior(2);
+        panel.add(maximumLeftContractionValue, new GridConstraints(8, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        final JLabel label8 = new JLabel();
+        label8.setText("Right MVC");
+        panel.add(label8, new GridConstraints(9, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        maximumRightContractionValue = new JFormattedTextField();
+        maximumRightContractionValue.setColumns(5);
+        maximumRightContractionValue.setDropMode(DropMode.INSERT);
+        maximumRightContractionValue.setEnabled(false);
+        maximumRightContractionValue.setFocusLostBehavior(2);
+        panel.add(maximumRightContractionValue, new GridConstraints(9, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
     }
 
     /**

@@ -54,11 +54,11 @@ public class Session implements Runnable {
 
     public void start(SessionParameters sessionParameters, ExperimentFrame.Binding binding) throws IOException {
         LOG.info("Starting session '{}' from {}", config.getSessionName(), config.getPath());
-        leftDevice = new ForceGauge("leftDevice", sessionParameters.forceDevicesPorts().get(0), sessionParameters.maximumContraction, binding);
+        leftDevice = new ForceGauge("leftDevice", sessionParameters.forceDevicesPorts().get(0), sessionParameters.maximumLeftContraction, binding);
         if (sessionParameters.forceDevicesPorts().get(1).equals(sessionParameters.forceDevicesPorts().get(0))) {
             rightDevice = ForceGauge.DISABLED_DEVICE;
         } else {
-            rightDevice = new ForceGauge("rightDevice", sessionParameters.forceDevicesPorts().get(1), sessionParameters.maximumContraction, binding);
+            rightDevice = new ForceGauge("rightDevice", sessionParameters.forceDevicesPorts().get(1), sessionParameters.maximumRightContraction, binding);
         }
         if (!leftDevice.isEnabled() && !rightDevice.isEnabled()) {
             LOG.warn("All devices are disabled. There will be no force data");
@@ -81,7 +81,12 @@ public class Session implements Runnable {
         output.addEntry("configurationFile", config.getPath());
         output.addEntry("configurationChecksum", computeConfigChecksum());
         output.addEntry("participantId", sessionParameters.participantId);
-        output.addEntry("maximumVoluntaryContraction", sessionParameters.maximumContraction);
+        if (sessionParameters.maximumLeftContraction != -1) {
+            output.addEntry("maximumLeftVoluntaryContraction", sessionParameters.maximumLeftContraction);
+        }
+        if (sessionParameters.maximumRightContraction != -1) {
+            output.addEntry("maximumRightVoluntaryContraction", sessionParameters.maximumRightContraction);
+        }
         output.write(outputFile);
     }
 
@@ -145,6 +150,6 @@ public class Session implements Runnable {
     }
 
     public record SessionParameters(String participantId, String outputFile, List<String> forceDevicesPorts,
-                                    int maximumContraction) {
+                                    int maximumLeftContraction, int maximumRightContraction) {
     }
 }
