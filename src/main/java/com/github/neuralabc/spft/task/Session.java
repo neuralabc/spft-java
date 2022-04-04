@@ -129,6 +129,10 @@ public class Session implements Runnable {
                 writeBlockMetadata(nextBlock);
                 nextBlock.run(uiBinding, outputFile);
                 writeBlockEndMetadata();
+                if (currentBlock < config.getBlocks().size() - 1) {
+                    LOG.debug("Starting inter-block interval");
+                    Thread.sleep(config.getInterBlockInterval());
+                }
             }
             leftDevice.stop();
             rightDevice.stop();
