@@ -1,5 +1,7 @@
 package com.github.neuralabc.spft.ui;
 
+import com.github.neuralabc.spft.task.config.SessionConfig;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -49,6 +51,10 @@ public class ExperimentFrame extends JFrame {
 
         public void setRightForceValue(double normalizedValue) {
             barsPanel.setRightForceValue(normalizedValue);
+        }
+
+        public void setColours(SessionConfig.ColoursConfig colours) {
+            barsPanel.setColours(colours);
         }
     }
 }

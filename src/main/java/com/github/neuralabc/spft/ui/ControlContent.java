@@ -35,6 +35,7 @@ public class ControlContent {
     private static final String LAST_RIGHT_DEVICE = "lastRightDevice";
 
     private final Preferences prefs;
+    private final ExperimentFrame.Binding experimentFrameBinding;
     private JButton loadButton;
     private JTextField configPathValue;
     private JTextField sessionNameValue;
@@ -51,6 +52,7 @@ public class ControlContent {
     private Session currentSession;
 
     public ControlContent(ExperimentFrame.Binding binding) {
+        experimentFrameBinding = binding;
         prefs = Preferences.userRoot().node(getClass().getName());
         fileChooser = new JFileChooser(prefs.get(LAST_FOLDER, new File(".").getAbsolutePath()));
         fileChooser.setFileFilter(new FileNameExtensionFilter("YAML configurations (*.yml, *.yaml)", "yml", "yaml"));
@@ -66,7 +68,7 @@ public class ControlContent {
         DefaultFormatterFactory factory = new DefaultFormatterFactory(formatter);
         maximumLeftContractionValue.setFormatterFactory(factory);
         maximumRightContractionValue.setFormatterFactory(factory);
-        startButton.addActionListener(e -> startClicked(binding));
+        startButton.addActionListener(e -> startClicked());
         versionLabel.setText("Version: " + ControlFrame.getVersion());
 
         leftDevice.addItem(ForceGauge.DISABLED);
@@ -103,6 +105,7 @@ public class ControlContent {
                 maximumRightContractionValue.setEnabled(true);
                 maximumRightContractionValue.setText("");
                 prefs.put(LAST_FOLDER, selectedFile.getParent());
+                experimentFrameBinding.setColours(currentSession.getConfig().getColours());
             } catch (SessionException exc) {
                 JOptionPane.showMessageDialog(panel, exc.getMessage(), "Error creating session", JOptionPane.ERROR_MESSAGE);
             }
@@ -170,7 +173,7 @@ public class ControlContent {
         verifyIfComplete();
     }
 
-    private void startClicked(ExperimentFrame.Binding binding) {
+    private void startClicked() {
         try {
             if (leftDevice.getSelectedItem() == null || rightDevice.getSelectedItem() == null) {
                 throw new IllegalStateException("Start should only be allowed when both left and right devices are set");
@@ -184,7 +187,7 @@ public class ControlContent {
             int maximumLeftContraction = maximumLeftContractionValue.getText().isEmpty() ? -1 : Integer.parseInt(maximumLeftContractionValue.getText());
             int maximumRightContraction = maximumRightContractionValue.getText().isEmpty() ? -1 : Integer.parseInt(maximumRightContractionValue.getText());
             Session.SessionParameters sessionParameters = new Session.SessionParameters(participantIdValue.getText(), outputFileValue.getText(), usedDevices, maximumLeftContraction, maximumRightContraction);
-            currentSession.start(sessionParameters, binding);
+            currentSession.start(sessionParameters, experimentFrameBinding);
         } catch (IOException exc) {
             JOptionPane.showMessageDialog(panel, exc.toString(), "Error writing output", JOptionPane.ERROR_MESSAGE);
         }

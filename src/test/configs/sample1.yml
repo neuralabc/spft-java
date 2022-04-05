@@ -1,6 +1,9 @@
 sessionName: Test session
 outputSuffix: out-file.yml
 interBlockInterval: 2000
+colours: # optional
+  leftReference: 1D8348
+  leftForce: 82E0AA
 blocks:
   - name: "block1"
     instructions: "Block1 starting"

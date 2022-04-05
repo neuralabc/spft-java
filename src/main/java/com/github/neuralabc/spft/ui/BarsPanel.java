@@ -1,5 +1,6 @@
 package com.github.neuralabc.spft.ui;
 
+import com.github.neuralabc.spft.task.config.SessionConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,25 +32,21 @@ public class BarsPanel extends JPanel {
 
         leftForceBar = new StimulusBar();
         leftForceBar.setName("Left Force Bar");
-        leftForceBar.setBackground(Color.BLUE);
         leftForceBar.setPreferredSize(barSize);
         add(leftForceBar);
 
         leftReferenceBar = new StimulusBar();
         leftReferenceBar.setName("Left Reference Bar");
-        leftReferenceBar.setBackground(Color.BLACK);
         leftReferenceBar.setPreferredSize(barSize);
         add(leftReferenceBar);
 
         rightReferenceBar = new StimulusBar();
         rightReferenceBar.setName("Right Reference Bar");
-        rightReferenceBar.setBackground(Color.WHITE);
         rightReferenceBar.setPreferredSize(barSize);
         add(rightReferenceBar);
 
         rightForceBar = new StimulusBar();
         rightForceBar.setName("Right Force Bar");
-        rightForceBar.setBackground(Color.ORANGE);
         rightForceBar.setPreferredSize(barSize);
         add(rightForceBar);
     }
@@ -97,5 +94,12 @@ public class BarsPanel extends JPanel {
         super.paintComponent(g);
 
         LOG.trace("Drawing bars");
+    }
+
+    public void setColours(SessionConfig.ColoursConfig colours) {
+        leftForceBar.setBackground(Color.decode('#' + colours.getLeftForce()));
+        leftReferenceBar.setBackground(Color.decode('#' + colours.getLeftReference()));
+        rightReferenceBar.setBackground(Color.decode('#' + colours.getRightReference()));
+        rightForceBar.setBackground(Color.decode('#' + colours.getRightForce()));
     }
 }
