@@ -56,5 +56,13 @@ public class ExperimentFrame extends JFrame {
         public void setColours(SessionConfig.ColoursConfig colours) {
             barsPanel.setColours(colours);
         }
+
+        public void showLeftBars(boolean show) {
+            barsPanel.showLeftBars(show);
+        }
+
+        public void showRightBars(boolean show) {
+            barsPanel.showRightBars(show);
+        }
     }
 }

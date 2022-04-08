@@ -29,12 +29,12 @@ public class Trial {
     public Trial(TrialConfig config, Map<String, SequenceConfig> sequencesPool) {
         this.config = config;
         this.sequence = sequencesPool.get(config.getSequenceRef());
-        if (sequence.getValuesLeft() != null) {
+        if (hasLeftSequence()) {
             String sectionName = "leftReference";
             leftReferenceOutput = new OutputSection(3);
             leftReferenceOutput.addEntry(sectionName, "");
         }
-        if (sequence.getValuesRight() != null) {
+        if (hasRightSequence()) {
             String sectionName = "rightReference";
             rightReferenceOutput = new OutputSection(3);
             rightReferenceOutput.addEntry(sectionName, "");
@@ -72,6 +72,14 @@ public class Trial {
         return config.getName();
     }
 
+    public boolean hasLeftSequence() {
+        return sequence.getValuesLeft() != null;
+    }
+
+    public boolean hasRightSequence() {
+        return sequence.getValuesRight() != null;
+    }
+
     private class Presentation implements ActionListener {
         private final ExperimentFrame.Binding binding;
         private int sequencePos;
@@ -87,12 +95,12 @@ public class Trial {
                 //just in case timer is not cancelled before a next tick
                 return;
             }
-            if (sequence.getValuesLeft() != null) {
+            if (hasLeftSequence()) {
                 double leftReferenceValue = sequence.getValuesLeft().get(sequencePos);
                 leftReferenceOutput.addSample(leftReferenceValue);
                 binding.setLeftReferenceValue(leftReferenceValue);
             }
-            if (sequence.getValuesRight() != null) {
+            if (hasRightSequence()) {
                 double rightReferenceValue = sequence.getValuesRight().get(sequencePos);
                 rightReferenceOutput.addSample(rightReferenceValue);
                 binding.setRightReferenceValue(rightReferenceValue);

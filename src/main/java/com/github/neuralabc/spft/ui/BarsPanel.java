@@ -102,4 +102,14 @@ public class BarsPanel extends JPanel {
         rightReferenceBar.setBackground(Color.decode('#' + colours.getRightReference()));
         rightForceBar.setBackground(Color.decode('#' + colours.getRightForce()));
     }
+
+    public void showLeftBars(boolean show) {
+        leftReferenceBar.setVisible(show);
+        leftForceBar.setVisible(show);
+    }
+
+    public void showRightBars(boolean show) {
+        rightReferenceBar.setVisible(show);
+        rightForceBar.setVisible(show);
+    }
 }

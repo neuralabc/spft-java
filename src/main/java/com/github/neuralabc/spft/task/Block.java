@@ -29,6 +29,8 @@ public class Block {
     public void run(ExperimentFrame.Binding binding, Path outputFile) throws InterruptedException, IOException {
         LOG.info("\tStarting block '{}'", config.getName());
 
+        binding.showLeftBars(trials.get(0).hasLeftSequence());
+        binding.showRightBars(trials.get(0).hasRightSequence());
         binding.showText(config.getInstructions());
         Thread.sleep(config.getInstructionsDuration());
         binding.showText("");
@@ -41,6 +43,8 @@ public class Block {
             trialMetadataOutput.write(outputFile);
             nextTrial.run(binding, outputFile);
             if (currentTrial < config.getTrials().size() - 1) {
+                binding.showLeftBars(trials.get(currentTrial + 1).hasLeftSequence());
+                binding.showRightBars(trials.get(currentTrial + 1).hasRightSequence());
                 LOG.debug("Starting inter-trial interval");
                 Thread.sleep(config.getInterTrialInterval());
             }

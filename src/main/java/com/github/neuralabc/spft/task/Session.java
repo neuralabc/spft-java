@@ -136,6 +136,8 @@ public class Session implements Runnable {
             }
             leftDevice.stop();
             rightDevice.stop();
+            uiBinding.showLeftBars(true);
+            uiBinding.showRightBars(true);
 
             OutputSection devices = new OutputSection();
             devices.addEntry("devices", "");
