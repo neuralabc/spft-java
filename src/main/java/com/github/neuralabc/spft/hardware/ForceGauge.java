@@ -111,7 +111,7 @@ public class ForceGauge implements Runnable {
                                 binding.setRightForceValue(normalizedValue);
                             }
 
-                            output.addSample(normalizedValue);
+                            output.addSample(sampleValue);
                             builder = new StringBuilder(8);
                         }
                     } else {
