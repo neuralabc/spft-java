@@ -28,7 +28,7 @@ public class OutputSection {
         entries.put(key, value);
     }
 
-    public void addSample(double sampleValue) {
+    public void addSample(Object sampleValue) {
         if (timeSeries.containsKey("  times")) {
             Collection<Object> timesSeries = timeSeries.get("  times");
             String elapsedMillis = String.format("%.2f", System.nanoTime() / NANOS_IN_MILLI);
