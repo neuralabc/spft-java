@@ -15,6 +15,7 @@ public class BarsPanel extends JPanel {
     private static final int MAX_HEIGHT = 500; //TODO: make these values resolution-dependent
     private static final int WIDTH = 100;
     private static final int MIN_HEIGHT = 20;
+    private static final int BAR_SEPARATION = 200;
     private final JPanel leftForceBar;
     private final JPanel leftReferenceBar;
     private final JPanel rightForceBar;
@@ -24,11 +25,17 @@ public class BarsPanel extends JPanel {
     private final Component space3;
 
     public BarsPanel() {
+        JPanel panel = new JPanel();
+        add(panel);
+
         if (Boolean.getBoolean("debug")) {
             setBackground(Color.RED);
+            panel.setBackground(Color.ORANGE);
         }
-        BoxLayout boxLayout = new BoxLayout(this, BoxLayout.X_AXIS);
-        setLayout(boxLayout);
+
+
+        LayoutManager boxLayout = new BoxLayout(panel, BoxLayout.X_AXIS);
+        panel.setLayout(boxLayout);
 
         Dimension barSize = new Dimension(WIDTH, MAX_HEIGHT);
         Dimension minSize = new Dimension(WIDTH, MIN_HEIGHT);
@@ -38,36 +45,37 @@ public class BarsPanel extends JPanel {
         leftForceBar.setPreferredSize(barSize);
         leftForceBar.setMaximumSize(barSize);
         leftForceBar.setAlignmentY(Component.BOTTOM_ALIGNMENT);
-        add(Box.createHorizontalGlue());
-        add(leftForceBar);
+        panel.add(Box.createHorizontalGlue());
+        panel.add(leftForceBar);
 
         leftReferenceBar = new JPanel();
         leftReferenceBar.setName("Left Reference Bar");
         leftReferenceBar.setPreferredSize(minSize);
         leftReferenceBar.setMaximumSize(barSize);
         leftReferenceBar.setAlignmentY(Component.BOTTOM_ALIGNMENT);
-        space1 = Box.createHorizontalGlue();
-        add(space1);
-        add(leftReferenceBar);
+        Dimension separator = new Dimension(BAR_SEPARATION, 0);
+        space1 = Box.createRigidArea(separator);
+        panel.add(space1);
+        panel.add(leftReferenceBar);
 
         rightReferenceBar = new JPanel();
         rightReferenceBar.setName("Right Reference Bar");
         rightReferenceBar.setPreferredSize(minSize);
         rightReferenceBar.setMaximumSize(barSize);
         rightReferenceBar.setAlignmentY(Component.BOTTOM_ALIGNMENT);
-        space2 = Box.createHorizontalGlue();
-        add(space2);
-        add(rightReferenceBar);
+        space2 = Box.createRigidArea(separator);
+        panel.add(space2);
+        panel.add(rightReferenceBar);
 
         rightForceBar = new JPanel();
         rightForceBar.setName("Right Force Bar");
         rightForceBar.setPreferredSize(minSize);
         rightForceBar.setMaximumSize(barSize);
         rightForceBar.setAlignmentY(Component.BOTTOM_ALIGNMENT);
-        space3 = Box.createHorizontalGlue();
-        add(space3);
-        add(rightForceBar);
-        add(Box.createHorizontalGlue());
+        space3 = Box.createRigidArea(separator);
+        panel.add(space3);
+        panel.add(rightForceBar);
+        panel.add(Box.createHorizontalGlue());
     }
 
     public void setLeftReferenceValue(double normalizedValue) {
