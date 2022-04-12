@@ -116,13 +116,6 @@ public class BarsPanel extends JPanel {
         bar.revalidate();
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-
-        LOG.trace("Drawing bars");
-    }
-
     public void setColours(SessionConfig.ColoursConfig colours) {
         leftForceBar.setBackground(Color.decode('#' + colours.getLeftForce()));
         leftReferenceBar.setBackground(Color.decode('#' + colours.getLeftReference()));
