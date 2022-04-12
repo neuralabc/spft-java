@@ -14,6 +14,7 @@ public class SessionConfig {
     private List<BlockConfig> blocks;
     private Map<String, SequenceConfig> sequences;
     private ColoursConfig colours = new ColoursConfig(); // start with default colours
+    private List<String> triggers;
 
     public String getPath() {
         return path;
@@ -69,6 +70,14 @@ public class SessionConfig {
 
     public void setColours(ColoursConfig colours) {
         this.colours = colours;
+    }
+
+    public List<String> getTriggers() {
+        return triggers;
+    }
+
+    public void setTriggers(List<String> triggers) {
+        this.triggers = triggers;
     }
 
     public static class ColoursConfig {

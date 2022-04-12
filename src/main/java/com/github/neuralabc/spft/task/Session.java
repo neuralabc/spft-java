@@ -1,6 +1,7 @@
 package com.github.neuralabc.spft.task;
 
 import com.github.neuralabc.spft.hardware.ForceGauge;
+import com.github.neuralabc.spft.hardware.TriggerTracker;
 import com.github.neuralabc.spft.task.config.SessionConfig;
 import com.github.neuralabc.spft.task.exceptions.OutputException;
 import com.github.neuralabc.spft.task.exceptions.SessionException;
@@ -33,6 +34,7 @@ public class Session implements Runnable {
     private Path outputFile;
     private ForceGauge leftDevice;
     private ForceGauge rightDevice;
+    private final TriggerTracker triggerTracker;
 
     public Session(File selectedFile) {
         Yaml yaml = new Yaml(new Constructor(SessionConfig.class));
@@ -41,6 +43,11 @@ public class Session implements Runnable {
             config = yaml.load(new FileInputStream(selectedFile));
             LOG.info("Successfully loaded session '{}'", config.getSessionName());
             config.setPath(selectedFile.getAbsolutePath());
+            if (isTriggerStarted()) {
+                triggerTracker = new TriggerTracker(config.getTriggers());
+            } else {
+                triggerTracker = TriggerTracker.NO_TRIGGERS;
+            }
 
             blocks = config.getBlocks().stream().map(blockConfig -> new Block(blockConfig, config.getSequences())).collect(Collectors.toList());
         } catch (FileNotFoundException ex) {
@@ -120,6 +127,8 @@ public class Session implements Runnable {
     @Override
     public void run() {
         try {
+            triggerTracker.start();
+            triggerTracker.waitNext();
             leftDevice.start();
             rightDevice.start();
 
@@ -136,6 +145,7 @@ public class Session implements Runnable {
             }
             leftDevice.stop();
             rightDevice.stop();
+            triggerTracker.stop();
             uiBinding.showLeftBars(true);
             uiBinding.showRightBars(true);
 
@@ -166,6 +176,11 @@ public class Session implements Runnable {
         String endMillis = String.format("%.2f", System.nanoTime() / NANOS_IN_MILLI);
         blockOutput.addEntry("  endTimestamp", endMillis);
         blockOutput.write(outputFile);
+    }
+
+    private boolean isTriggerStarted() {
+        List<String> triggers = config.getTriggers();
+        return triggers != null && !triggers.isEmpty();
     }
 
     public record SessionParameters(String participantId, String outputFile, List<String> forceDevicesPorts,
