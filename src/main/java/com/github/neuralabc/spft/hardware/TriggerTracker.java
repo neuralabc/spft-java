@@ -4,9 +4,12 @@ import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
+import com.github.neuralabc.spft.task.output.OutputSection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -22,6 +25,7 @@ public class TriggerTracker implements NativeKeyListener {
     public static final TriggerTracker NO_TRIGGERS = new TriggerTracker(Collections.emptyList());
     private final List<String> triggers;
     private final CountDownLatch sync = new CountDownLatch(1);
+    private final OutputSection output;
 
     public TriggerTracker(List<String> triggers) {
         if (!GlobalScreen.isNativeHookRegistered()) {
@@ -32,7 +36,17 @@ public class TriggerTracker implements NativeKeyListener {
                 triggers = Collections.emptyList();
             }
         }
+
         this.triggers = triggers;
+        if (isEnabled()) {
+            output = new OutputSection(1);
+        } else {
+            output = null;
+        }
+    }
+
+    public boolean isEnabled() {
+        return triggers != null && !triggers.isEmpty();
     }
 
     public void waitNext() throws InterruptedException {
@@ -44,8 +58,10 @@ public class TriggerTracker implements NativeKeyListener {
 
     @Override
     public void nativeKeyPressed(NativeKeyEvent nativeEvent) {
-        if (triggers.contains(NativeKeyEvent.getKeyText(nativeEvent.getKeyCode()))) {
+        String keyText = NativeKeyEvent.getKeyText(nativeEvent.getKeyCode());
+        if (triggers.contains(keyText)) {
             LOG.debug("Trigger received");
+            output.addSample(keyText);
             sync.countDown();
         }
     }
@@ -58,5 +74,12 @@ public class TriggerTracker implements NativeKeyListener {
 
     public void stop() {
         GlobalScreen.removeNativeKeyListener(this);
+    }
+
+    public void writeOutput(Path outputFile) throws IOException {
+        if (isEnabled()) {
+            LOG.debug("Writing acquired trigger data");
+            output.write(outputFile);
+        }
     }
 }

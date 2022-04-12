@@ -149,11 +149,21 @@ public class Session implements Runnable {
             uiBinding.showLeftBars(true);
             uiBinding.showRightBars(true);
 
-            OutputSection devices = new OutputSection();
-            devices.addEntry("devices", "");
-            devices.write(outputFile);
-            leftDevice.writeOutput(outputFile);
-            rightDevice.writeOutput(outputFile);
+            if (leftDevice.isEnabled() || rightDevice.isEnabled()) {
+                OutputSection devices = new OutputSection();
+                devices.addEntry("devices", "");
+                devices.write(outputFile);
+                leftDevice.writeOutput(outputFile);
+                rightDevice.writeOutput(outputFile);
+            }
+
+            if (triggerTracker.isEnabled()) {
+                OutputSection triggers = new OutputSection();
+                triggers.addEntry("triggers", "");
+                triggers.write(outputFile);
+                triggerTracker.writeOutput(outputFile);
+            }
+
             LOG.info("Session '{}' ended successfully", getConfig().getSessionName());
         } catch (InterruptedException e) {
             LOG.error("Interrupted session {}", config.getSessionName(), e);

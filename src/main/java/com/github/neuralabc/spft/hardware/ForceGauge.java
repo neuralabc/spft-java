@@ -78,7 +78,7 @@ public class ForceGauge implements Runnable {
 
     public void writeOutput(Path outputFile) throws IOException {
         if (isEnabled()) {
-            LOG.debug("Writing acquired data of {}", this);
+            LOG.debug("Writing acquired force data of {}", this);
             output.write(outputFile);
         }
     }
