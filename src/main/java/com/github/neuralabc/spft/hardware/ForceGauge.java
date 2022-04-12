@@ -42,7 +42,6 @@ public class ForceGauge implements Runnable {
         this.binding = binding;
         if (!deviceName.equals(DISABLED) && !portName.equals(DISABLED)) {
             commPort = SerialPort.getCommPort(portName);
-            commPort.allowElevatedPermissionsRequest();
             output = new OutputSection(1);
             output.addEntry("- deviceName", deviceName);
             output.addEntry("  portName", portName);
