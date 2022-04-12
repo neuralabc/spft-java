@@ -15,40 +15,67 @@ public class BarsPanel extends JPanel {
     private static final int MAX_HEIGHT = 500; //TODO: make these values resolution-dependent
     private static final int WIDTH = 100;
     private static final int MIN_HEIGHT = 20;
+    private static final int BAR_SEPARATION = 200;
     private final JPanel leftForceBar;
     private final JPanel leftReferenceBar;
     private final JPanel rightForceBar;
     private final JPanel rightReferenceBar;
+    private final Component space1;
+    private final Component space2;
+    private final Component space3;
 
     public BarsPanel() {
+        JPanel panel = new JPanel();
+        add(panel);
+
         if (Boolean.getBoolean("debug")) {
             setBackground(Color.RED);
+            panel.setBackground(Color.ORANGE);
         }
-        FlowLayout flowLayout = new FlowLayout(FlowLayout.CENTER, 200, 30); //TODO fix magic numbers
-        flowLayout.setAlignOnBaseline(true);
-        setLayout(flowLayout);
+
+
+        LayoutManager boxLayout = new BoxLayout(panel, BoxLayout.X_AXIS);
+        panel.setLayout(boxLayout);
 
         Dimension barSize = new Dimension(WIDTH, MAX_HEIGHT);
+        Dimension minSize = new Dimension(WIDTH, MIN_HEIGHT);
 
-        leftForceBar = new StimulusBar();
+        leftForceBar = new JPanel();
         leftForceBar.setName("Left Force Bar");
         leftForceBar.setPreferredSize(barSize);
-        add(leftForceBar);
+        leftForceBar.setMaximumSize(barSize);
+        leftForceBar.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+        panel.add(Box.createHorizontalGlue());
+        panel.add(leftForceBar);
 
-        leftReferenceBar = new StimulusBar();
+        leftReferenceBar = new JPanel();
         leftReferenceBar.setName("Left Reference Bar");
-        leftReferenceBar.setPreferredSize(barSize);
-        add(leftReferenceBar);
+        leftReferenceBar.setPreferredSize(minSize);
+        leftReferenceBar.setMaximumSize(barSize);
+        leftReferenceBar.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+        Dimension separator = new Dimension(BAR_SEPARATION, 0);
+        space1 = Box.createRigidArea(separator);
+        panel.add(space1);
+        panel.add(leftReferenceBar);
 
-        rightReferenceBar = new StimulusBar();
+        rightReferenceBar = new JPanel();
         rightReferenceBar.setName("Right Reference Bar");
-        rightReferenceBar.setPreferredSize(barSize);
-        add(rightReferenceBar);
+        rightReferenceBar.setPreferredSize(minSize);
+        rightReferenceBar.setMaximumSize(barSize);
+        rightReferenceBar.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+        space2 = Box.createRigidArea(separator);
+        panel.add(space2);
+        panel.add(rightReferenceBar);
 
-        rightForceBar = new StimulusBar();
+        rightForceBar = new JPanel();
         rightForceBar.setName("Right Force Bar");
-        rightForceBar.setPreferredSize(barSize);
-        add(rightForceBar);
+        rightForceBar.setPreferredSize(minSize);
+        rightForceBar.setMaximumSize(barSize);
+        rightForceBar.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+        space3 = Box.createRigidArea(separator);
+        panel.add(space3);
+        panel.add(rightForceBar);
+        panel.add(Box.createHorizontalGlue());
     }
 
     public void setLeftReferenceValue(double normalizedValue) {
@@ -76,7 +103,7 @@ public class BarsPanel extends JPanel {
         final int barRange = MAX_HEIGHT - MIN_HEIGHT;
         int newHeight = (int) Math.round(barRange * normalizedValue);
         newHeight += MIN_HEIGHT;
-        bar.setPreferredSize(new Dimension(WIDTH, newHeight));
+        bar.setMaximumSize(new Dimension(WIDTH, newHeight));
         bar.revalidate();
     }
 
@@ -85,7 +112,7 @@ public class BarsPanel extends JPanel {
         int newHeight = (int) Math.round(MAX_HEIGHT * normalizedValue);
         newHeight = Math.min(newHeight, MAX_HEIGHT);
         newHeight = Math.max(newHeight, MIN_HEIGHT);
-        bar.setPreferredSize(new Dimension(WIDTH, newHeight));
+        bar.setMaximumSize(new Dimension(WIDTH, newHeight));
         bar.revalidate();
     }
 
@@ -106,10 +133,14 @@ public class BarsPanel extends JPanel {
     public void showLeftBars(boolean show) {
         leftReferenceBar.setVisible(show);
         leftForceBar.setVisible(show);
+        space1.setVisible(show);
+        space2.setVisible(show);
     }
 
     public void showRightBars(boolean show) {
         rightReferenceBar.setVisible(show);
         rightForceBar.setVisible(show);
+        space2.setVisible(show);
+        space3.setVisible(show);
     }
 }
