@@ -188,6 +188,8 @@ public class ControlContent {
             int maximumRightContraction = maximumRightContractionValue.getText().isEmpty() ? -1 : Integer.parseInt(maximumRightContractionValue.getText());
             Session.SessionParameters sessionParameters = new Session.SessionParameters(participantIdValue.getText(), outputFileValue.getText(), usedDevices, maximumLeftContraction, maximumRightContraction);
             currentSession.start(sessionParameters, experimentFrameBinding);
+
+            startButton.setEnabled(false);
         } catch (IOException exc) {
             JOptionPane.showMessageDialog(panel, exc.toString(), "Error writing output", JOptionPane.ERROR_MESSAGE);
         }
