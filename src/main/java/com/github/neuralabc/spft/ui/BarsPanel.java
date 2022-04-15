@@ -12,10 +12,9 @@ import java.awt.*;
  */
 public class BarsPanel extends JPanel {
     private static final Logger LOG = LoggerFactory.getLogger(BarsPanel.class);
-    private static final int MAX_HEIGHT = 500; //TODO: make these values resolution-dependent
-    private static final int WIDTH = 100;
+    private final int maxHeight;
+    private final int barWidth;
     private static final int MIN_HEIGHT = 20;
-    private static final int BAR_SEPARATION = 200;
     private final JPanel leftForceBar;
     private final JPanel leftReferenceBar;
     private final JPanel rightForceBar;
@@ -25,6 +24,19 @@ public class BarsPanel extends JPanel {
     private final Component space3;
 
     public BarsPanel() {
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        final double heightFactor = 0.463;
+        int calculatedMaxHeight = (int) Math.round(heightFactor * screenSize.height);
+        maxHeight = Integer.getInteger("spft.ui.bars.maxHeight", calculatedMaxHeight);
+
+        final double widthFactor = 0.052;
+        int calculatedWidth = (int) Math.round(widthFactor * screenSize.width);
+        barWidth = Integer.getInteger("spft.ui.bars.width", calculatedWidth);
+
+        final double separationFactor = 0.1042;
+        int calculatedSeparation = (int) Math.round(separationFactor * screenSize.width);
+        int barSeparation = Integer.getInteger("spft.ui.bars.separation", calculatedSeparation);
+
         JPanel panel = new JPanel();
         add(panel);
 
@@ -37,8 +49,8 @@ public class BarsPanel extends JPanel {
         LayoutManager boxLayout = new BoxLayout(panel, BoxLayout.X_AXIS);
         panel.setLayout(boxLayout);
 
-        Dimension barSize = new Dimension(WIDTH, MAX_HEIGHT);
-        Dimension minSize = new Dimension(WIDTH, MIN_HEIGHT);
+        Dimension barSize = new Dimension(barWidth, maxHeight);
+        Dimension minSize = new Dimension(barWidth, MIN_HEIGHT);
 
         leftForceBar = new JPanel();
         leftForceBar.setName("Left Force Bar");
@@ -53,7 +65,7 @@ public class BarsPanel extends JPanel {
         leftReferenceBar.setPreferredSize(minSize);
         leftReferenceBar.setMaximumSize(barSize);
         leftReferenceBar.setAlignmentY(Component.BOTTOM_ALIGNMENT);
-        Dimension separator = new Dimension(BAR_SEPARATION, 0);
+        Dimension separator = new Dimension(barSeparation, 0);
         space1 = Box.createRigidArea(separator);
         panel.add(space1);
         panel.add(leftReferenceBar);
@@ -100,19 +112,19 @@ public class BarsPanel extends JPanel {
         }
         LOG.trace("Changing reference height of '{}' to {}", bar.getName(), normalizedValue);
 
-        final int barRange = MAX_HEIGHT - MIN_HEIGHT;
+        final int barRange = maxHeight - MIN_HEIGHT;
         int newHeight = (int) Math.round(barRange * normalizedValue);
         newHeight += MIN_HEIGHT;
-        bar.setMaximumSize(new Dimension(WIDTH, newHeight));
+        bar.setMaximumSize(new Dimension(barWidth, newHeight));
         bar.revalidate();
     }
 
     private void changeForceHeight(JPanel bar, double normalizedValue) {
         LOG.trace("Changing force height of '{}' to {}", bar.getName(), normalizedValue);
-        int newHeight = (int) Math.round(MAX_HEIGHT * normalizedValue);
-        newHeight = Math.min(newHeight, MAX_HEIGHT);
+        int newHeight = (int) Math.round(maxHeight * normalizedValue);
+        newHeight = Math.min(newHeight, maxHeight);
         newHeight = Math.max(newHeight, MIN_HEIGHT);
-        bar.setMaximumSize(new Dimension(WIDTH, newHeight));
+        bar.setMaximumSize(new Dimension(barWidth, newHeight));
         bar.revalidate();
     }
 

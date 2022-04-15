@@ -24,7 +24,11 @@ public class TextPanel extends JPanel {
             text = new JLabel();
         }
 
-        Font font = new Font("Dialog", Font.PLAIN, 50); //TODO: make font size more dynamic
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        final double fontSizeFactor = 0.0463;
+        int calculatedFontSize = (int) Math.round(fontSizeFactor * screenSize.height);
+        int fontSize = Integer.getInteger("spft.ui.font.size", calculatedFontSize);
+        Font font = new Font("Dialog", Font.PLAIN, fontSize);
         text.setFont(font);
         text.setHorizontalAlignment(SwingConstants.CENTER);
         add(text, BorderLayout.CENTER);
