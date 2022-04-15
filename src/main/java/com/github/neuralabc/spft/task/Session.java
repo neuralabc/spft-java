@@ -35,6 +35,7 @@ public class Session implements Runnable {
     private ForceGauge leftDevice;
     private ForceGauge rightDevice;
     private final TriggerTracker triggerTracker;
+    private Thread thread;
 
     public Session(File selectedFile) {
         Yaml yaml = new Yaml(new Constructor(SessionConfig.class));
@@ -73,7 +74,14 @@ public class Session implements Runnable {
         this.outputFile = Path.of(sessionParameters.outputFile());
         writeSessionMetadata(sessionParameters);
         uiBinding = binding;
-        new Thread(this, config.getSessionName().replaceAll(" ", "-")).start();
+        thread = new Thread(this, config.getSessionName().replaceAll(" ", "-"));
+        thread.start();
+    }
+
+    public void cancel() {
+        if (thread != null) {
+            thread.interrupt();
+        }
     }
 
     private void writeSessionMetadata(SessionParameters sessionParameters) throws IOException {
@@ -166,7 +174,7 @@ public class Session implements Runnable {
 
             LOG.info("Session '{}' ended successfully", getConfig().getSessionName());
         } catch (InterruptedException e) {
-            LOG.error("Interrupted session {}", config.getSessionName(), e);
+            LOG.warn("Interrupted session '{}'", config.getSessionName(), e);
         } catch (IOException e) {
             LOG.error("Problem writing output to {}", outputFile, e);
         }

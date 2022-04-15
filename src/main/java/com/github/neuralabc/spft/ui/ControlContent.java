@@ -91,6 +91,9 @@ public class ControlContent {
     }
 
     private void loadClicked() {
+        if (currentSession != null) {
+            currentSession.cancel();
+        }
         reset();
         int result = fileChooser.showOpenDialog(panel);
         if (result == JFileChooser.APPROVE_OPTION) {
