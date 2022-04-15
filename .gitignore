@@ -64,3 +64,5 @@ stage/
 \#*#
 .#*
 /src/test/output/
+
+*.jar
