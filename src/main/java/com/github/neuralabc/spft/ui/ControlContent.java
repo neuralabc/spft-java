@@ -100,8 +100,10 @@ public class ControlContent {
                 setData(currentSession.getConfig());
                 participantIdValue.setEnabled(true);
                 participantIdValue.setText("");
+                leftDevice.setEnabled(true);
                 maximumLeftContractionValue.setEnabled(true);
                 maximumLeftContractionValue.setText("");
+                rightDevice.setEnabled(true);
                 maximumRightContractionValue.setEnabled(true);
                 maximumRightContractionValue.setText("");
                 prefs.put(LAST_FOLDER, selectedFile.getParent());
@@ -191,6 +193,11 @@ public class ControlContent {
             currentSession.start(sessionParameters, experimentFrameBinding);
 
             startButton.setEnabled(false);
+            participantIdValue.setEnabled(false);
+            leftDevice.setEnabled(false);
+            maximumLeftContractionValue.setEnabled(false);
+            rightDevice.setEnabled(false);
+            maximumRightContractionValue.setEnabled(false);
         } catch (IOException exc) {
             JOptionPane.showMessageDialog(panel, exc.toString(), "Error writing output", JOptionPane.ERROR_MESSAGE);
         }
