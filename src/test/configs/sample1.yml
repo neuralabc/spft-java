@@ -1,6 +1,9 @@
 sessionName: Test session
 outputSuffix: out-file.yml
 interBlockInterval: 2000
+forceProportionRange:
+  min: 0.05
+  max: 0.3
 triggers: [ "5", "7" ] # optional. If missing, the task will start as soon as the "Start" button is clicked
 colours: # optional
   leftReference: 1D8348

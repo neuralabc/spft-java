@@ -10,6 +10,7 @@ public class SessionConfig {
     private String path;
     private String sessionName;
     private String outputSuffix;
+    private ForceRange forceProportionRange;
     private int interBlockInterval;
     private List<BlockConfig> blocks;
     private Map<String, SequenceConfig> sequences;
@@ -80,6 +81,14 @@ public class SessionConfig {
         this.triggers = triggers;
     }
 
+    public ForceRange getForceProportionRange() {
+        return forceProportionRange;
+    }
+
+    public void setForceProportionRange(ForceRange forceProportionRange) {
+        this.forceProportionRange = forceProportionRange;
+    }
+
     public static class ColoursConfig {
         private String leftReference = "1D8348";
         private String rightReference = "76448A";
@@ -116,6 +125,27 @@ public class SessionConfig {
 
         public void setRightForce(String rightForce) {
             this.rightForce = rightForce;
+        }
+    }
+
+    public static class ForceRange {
+        private double min;
+        private double max;
+
+        public double getMin() {
+            return min;
+        }
+
+        public void setMin(double min) {
+            this.min = min;
+        }
+
+        public double getMax() {
+            return max;
+        }
+
+        public void setMax(double max) {
+            this.max = max;
         }
     }
 }

@@ -106,6 +106,7 @@ public class ControlContent {
                 maximumRightContractionValue.setText("");
                 prefs.put(LAST_FOLDER, selectedFile.getParent());
                 experimentFrameBinding.setColours(currentSession.getConfig().getColours());
+                experimentFrameBinding.setForceRange(currentSession.getConfig().getForceProportionRange());
             } catch (SessionException exc) {
                 JOptionPane.showMessageDialog(panel, exc.getMessage(), "Error creating session", JOptionPane.ERROR_MESSAGE);
             }

@@ -22,6 +22,8 @@ public class BarsPanel extends JPanel {
     private final Component space1;
     private final Component space2;
     private final Component space3;
+    private double forceRangeMin = 0;
+    private double forceRangeMax = 1;
 
     public BarsPanel() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -44,7 +46,6 @@ public class BarsPanel extends JPanel {
             setBackground(Color.RED);
             panel.setBackground(Color.ORANGE);
         }
-
 
         LayoutManager boxLayout = new BoxLayout(panel, BoxLayout.X_AXIS);
         panel.setLayout(boxLayout);
@@ -119,9 +120,12 @@ public class BarsPanel extends JPanel {
         bar.revalidate();
     }
 
-    private void changeForceHeight(JPanel bar, double normalizedValue) {
-        LOG.trace("Changing force height of '{}' to {}", bar.getName(), normalizedValue);
-        int newHeight = (int) Math.round(maxHeight * normalizedValue);
+    private void changeForceHeight(JPanel bar, double mvcNormalizedValue) {
+        LOG.trace("Changing force height of '{}' to {}", bar.getName(), mvcNormalizedValue);
+
+        final double barRange = forceRangeMax - forceRangeMin;
+        double newValue = (mvcNormalizedValue - forceRangeMin) / barRange;
+        int newHeight = (int) Math.round(maxHeight * newValue);
         newHeight = Math.min(newHeight, maxHeight);
         newHeight = Math.max(newHeight, MIN_HEIGHT);
         bar.setMaximumSize(new Dimension(barWidth, newHeight));
@@ -147,5 +151,10 @@ public class BarsPanel extends JPanel {
         rightForceBar.setVisible(show);
         space2.setVisible(show);
         space3.setVisible(show);
+    }
+
+    public void setForceRange(SessionConfig.ForceRange forceRange) {
+        this.forceRangeMin = forceRange.getMin();
+        this.forceRangeMax = forceRange.getMax();
     }
 }

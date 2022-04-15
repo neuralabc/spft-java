@@ -64,5 +64,9 @@ public class ExperimentFrame extends JFrame {
         public void showRightBars(boolean show) {
             barsPanel.showRightBars(show);
         }
+
+        public void setForceRange(SessionConfig.ForceRange forceRange) {
+            barsPanel.setForceRange(forceRange);
+        }
     }
 }
