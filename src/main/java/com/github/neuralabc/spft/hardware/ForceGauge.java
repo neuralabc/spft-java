@@ -92,6 +92,10 @@ public class ForceGauge implements Runnable {
             }
             commPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 0, 0);
             StringBuilder builder = new StringBuilder(8);
+            int smoothWindow = Integer.getInteger("spft.forceData.smoothWindowSize", 1);
+            double[] smoothBufferLeft = new double[smoothWindow];
+            double[] smoothBufferRight = new double[smoothWindow];
+            int sampleCount = 0;
             while (!thread.isInterrupted()) {
                 byte[] sample = new byte[1];
                 int readBytes = commPort.readBytes(sample, sample.length);
@@ -105,12 +109,17 @@ public class ForceGauge implements Runnable {
 
                             double normalizedValue = sampleValue / (double) normalizationFactor;
                             if (name.contains("left")) {
-                                binding.setLeftForceValue(normalizedValue);
+                                smoothBufferLeft[sampleCount % smoothWindow] = normalizedValue;
+                                double smoothNormalizedValue = averageArray(smoothBufferLeft);
+                                binding.setLeftForceValue(smoothNormalizedValue);
                             } else {
-                                binding.setRightForceValue(normalizedValue);
+                                smoothBufferRight[sampleCount % smoothWindow] = normalizedValue;
+                                double smoothNormalizedValue = averageArray(smoothBufferRight);
+                                binding.setRightForceValue(smoothNormalizedValue);
                             }
 
                             output.addSample(sampleValue);
+                            sampleCount++;
                             builder = new StringBuilder(8);
                         }
                     } else {
@@ -139,6 +148,15 @@ public class ForceGauge implements Runnable {
         } finally {
             commPort.closePort();
         }
+    }
+
+    private double averageArray(double[] smoothBuffer) {
+        double sum = 0;
+        for (double element : smoothBuffer) {
+            sum += element;
+        }
+
+        return sum / smoothBuffer.length;
     }
 
     @Override
