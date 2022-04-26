@@ -35,9 +35,10 @@ public class BarsPanel extends JPanel {
         int calculatedWidth = (int) Math.round(widthFactor * screenSize.width);
         barWidth = Integer.getInteger("spft.ui.bars.width", calculatedWidth);
 
-        final double separationFactor = 0.1042;
+        final double separationFactor = 0.08;
         int calculatedSeparation = (int) Math.round(separationFactor * screenSize.width);
         int barSeparation = Integer.getInteger("spft.ui.bars.separation", calculatedSeparation);
+        Dimension separator = new Dimension(barSeparation, 0);
 
         JPanel panel = new JPanel();
         add(panel);
@@ -65,7 +66,6 @@ public class BarsPanel extends JPanel {
         leftReferenceBar.setPreferredSize(minSize);
         leftReferenceBar.setMaximumSize(barSize);
         leftReferenceBar.setAlignmentY(Component.BOTTOM_ALIGNMENT);
-        Dimension separator = new Dimension(barSeparation, 0);
         space1 = Box.createRigidArea(separator);
 
         boolean referenceOutside = Boolean.getBoolean("spft.ui.bars.referenceOutside");
@@ -88,7 +88,7 @@ public class BarsPanel extends JPanel {
         rightReferenceBar.setPreferredSize(minSize);
         rightReferenceBar.setMaximumSize(barSize);
         rightReferenceBar.setAlignmentY(Component.BOTTOM_ALIGNMENT);
-        space2 = Box.createRigidArea(separator);
+        space2 = Box.createRigidArea(new Dimension((int) Math.round(separator.width * 1.50), separator.height));
         panel.add(space2);
 
         rightForceBar = new JPanel();
