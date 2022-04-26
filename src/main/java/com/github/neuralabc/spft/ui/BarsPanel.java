@@ -59,7 +59,6 @@ public class BarsPanel extends JPanel {
         leftForceBar.setMaximumSize(barSize);
         leftForceBar.setAlignmentY(Component.BOTTOM_ALIGNMENT);
         panel.add(Box.createHorizontalGlue());
-        panel.add(leftForceBar);
 
         leftReferenceBar = new JPanel();
         leftReferenceBar.setName("Left Reference Bar");
@@ -68,8 +67,21 @@ public class BarsPanel extends JPanel {
         leftReferenceBar.setAlignmentY(Component.BOTTOM_ALIGNMENT);
         Dimension separator = new Dimension(barSeparation, 0);
         space1 = Box.createRigidArea(separator);
+
+        boolean referenceOutside = Boolean.getBoolean("spft.ui.bars.referenceOutside");
+        if (referenceOutside) {
+            panel.add(leftReferenceBar);
+        } else {
+            panel.add(leftForceBar);
+        }
+
         panel.add(space1);
-        panel.add(leftReferenceBar);
+
+        if (referenceOutside) {
+            panel.add(leftForceBar);
+        } else {
+            panel.add(leftReferenceBar);
+        }
 
         rightReferenceBar = new JPanel();
         rightReferenceBar.setName("Right Reference Bar");
@@ -78,7 +90,6 @@ public class BarsPanel extends JPanel {
         rightReferenceBar.setAlignmentY(Component.BOTTOM_ALIGNMENT);
         space2 = Box.createRigidArea(separator);
         panel.add(space2);
-        panel.add(rightReferenceBar);
 
         rightForceBar = new JPanel();
         rightForceBar.setName("Right Force Bar");
@@ -86,8 +97,19 @@ public class BarsPanel extends JPanel {
         rightForceBar.setMaximumSize(barSize);
         rightForceBar.setAlignmentY(Component.BOTTOM_ALIGNMENT);
         space3 = Box.createRigidArea(separator);
+
+        if (referenceOutside) {
+            panel.add(rightForceBar);
+        } else {
+            panel.add(rightReferenceBar);
+        }
         panel.add(space3);
-        panel.add(rightForceBar);
+        if (referenceOutside) {
+            panel.add(rightReferenceBar);
+        } else {
+            panel.add(rightForceBar);
+        }
+
         panel.add(Box.createHorizontalGlue());
     }
 
