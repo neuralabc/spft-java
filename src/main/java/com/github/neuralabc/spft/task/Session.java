@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.error.YAMLException;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -42,6 +43,7 @@ public class Session implements Runnable {
         try {
             LOG.debug("Trying to load session with config '{}'", selectedFile);
             config = yaml.load(new FileInputStream(selectedFile));
+            config.validate();
             LOG.info("Successfully loaded session '{}'", config.getSessionName());
             config.setPath(selectedFile.getAbsolutePath());
             if (isTriggerStarted()) {
@@ -53,6 +55,8 @@ public class Session implements Runnable {
             blocks = config.getBlocks().stream().map(blockConfig -> new Block(blockConfig, config.getSequences())).collect(Collectors.toList());
         } catch (FileNotFoundException ex) {
             throw new SessionException("Error opening configuration", ex);
+        } catch (YAMLException ex) {
+            throw new SessionException("Error loading session configuration. See output log for more details", ex);
         }
     }
 

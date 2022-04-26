@@ -1,5 +1,7 @@
 package com.github.neuralabc.spft.task.config;
 
+import com.github.neuralabc.spft.task.exceptions.SessionException;
+
 import java.util.List;
 import java.util.Map;
 
@@ -87,6 +89,24 @@ public class SessionConfig {
 
     public void setForceProportionRange(ForceRange forceProportionRange) {
         this.forceProportionRange = forceProportionRange;
+    }
+
+    public void validate() {
+        if (forceProportionRange == null) {
+            throw new SessionException("Invalid configuration: 'forceProportionRange' missing");
+        }
+        if (sessionName == null) {
+            throw new SessionException("Invalid configuration: 'sessionName' missing");
+        }
+        if (outputSuffix == null) {
+            throw new SessionException("Invalid configuration: 'outputSuffix' missing");
+        }
+        if (blocks == null) {
+            throw new SessionException("Invalid configuration: 'blocks' section missing");
+        }
+        if (sequences == null) {
+            throw new SessionException("Invalid configuration: 'sequences' section missing");
+        }
     }
 
     public static class ColoursConfig {
