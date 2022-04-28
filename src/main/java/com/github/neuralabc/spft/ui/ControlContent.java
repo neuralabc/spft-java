@@ -159,6 +159,7 @@ public class ControlContent {
             LOG.info("Output file {} already exists", outputFile);
             int override = JOptionPane.showConfirmDialog(panel, "Output file already exists. Do you want to overwrite it?", "Output exists", JOptionPane.YES_NO_OPTION);
             if (override == JOptionPane.NO_OPTION) {
+                participantIdValue.setText("");
                 return;
             }
         }
