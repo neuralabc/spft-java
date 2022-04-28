@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.DefaultFormatter;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
 import java.awt.*;
@@ -20,9 +21,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.Locale;
 import java.util.prefs.Preferences;
-import java.util.List;
 
 /**
  * Tool-generated class for the control window
@@ -42,7 +43,7 @@ public class ControlContent {
     private JTextField outputFileValue;
     private JPanel panel;
     private JButton startButton;
-    private JTextField participantIdValue;
+    private JFormattedTextField participantIdValue;
     private JLabel versionLabel;
     private JComboBox<String> leftDevice;
     private JComboBox<String> rightDevice;
@@ -59,7 +60,12 @@ public class ControlContent {
         loadButton.addActionListener(e -> loadClicked());
         leftDevice.addActionListener(this::deviceSelectionChanged);
         rightDevice.addActionListener(this::deviceSelectionChanged);
+
         participantIdValue.addActionListener(e -> participantIdChanged(e.getActionCommand()));
+        DefaultFormatter defaultFormatter = new DefaultFormatter();
+        DefaultFormatterFactory defaultFormatterFactory = new DefaultFormatterFactory(defaultFormatter);
+        participantIdValue.setFormatterFactory(defaultFormatterFactory);
+
         maximumLeftContractionValue.addActionListener(e -> mvcChanged(e.getActionCommand()));
         maximumRightContractionValue.addActionListener(e -> mvcChanged(e.getActionCommand()));
         NumberFormat format = NumberFormat.getIntegerInstance(Locale.CANADA);
@@ -268,8 +274,10 @@ public class ControlContent {
         final JLabel label4 = new JLabel();
         label4.setText("Participant Id");
         panel.add(label4, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        participantIdValue = new JTextField();
+        participantIdValue = new JFormattedTextField();
+        participantIdValue.setDropMode(DropMode.INSERT);
         participantIdValue.setEnabled(false);
+        participantIdValue.setFocusLostBehavior(2);
         panel.add(participantIdValue, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         final JLabel label5 = new JLabel();
         label5.setText("Left MVC");
