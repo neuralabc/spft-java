@@ -105,6 +105,9 @@ public class Session implements Runnable {
         if (sessionParameters.maximumRightContraction != -1) {
             output.addEntry("maximumRightVoluntaryContraction", sessionParameters.maximumRightContraction);
         }
+        output.addEntry("forceProportionRange", "");
+        output.addEntry("  min", config.getForceProportionRange().getMin());
+        output.addEntry("  max", config.getForceProportionRange().getMax());
         output.addEntry("blocks", "");
         output.write(outputFile);
     }
