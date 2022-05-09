@@ -10,11 +10,13 @@ import java.awt.*;
 /**
  * The panel containing all the feedback bars
  */
+@SuppressWarnings("ClassWithTooManyFields")
 public class BarsPanel extends JPanel {
     private static final Logger LOG = LoggerFactory.getLogger(BarsPanel.class);
+    private final int minHeight;
     private final int maxHeight;
     private final int barWidth;
-    private static final int MIN_HEIGHT = 20;
+    private static final int DEFAULT_MIN_HEIGHT = 20;
     private final JPanel leftForceBar;
     private final JPanel leftReferenceBar;
     private final JPanel rightForceBar;
@@ -30,6 +32,8 @@ public class BarsPanel extends JPanel {
         final double heightFactor = 0.463;
         int calculatedMaxHeight = (int) Math.round(heightFactor * screenSize.height);
         maxHeight = Integer.getInteger("spft.ui.bars.maxHeight", calculatedMaxHeight);
+
+        minHeight = Integer.getInteger("spft.ui.bars.minHeight", DEFAULT_MIN_HEIGHT);
 
         final double widthFactor = 0.052;
         int calculatedWidth = (int) Math.round(widthFactor * screenSize.width);
@@ -52,7 +56,7 @@ public class BarsPanel extends JPanel {
         panel.setLayout(boxLayout);
 
         Dimension barSize = new Dimension(barWidth, maxHeight);
-        Dimension minSize = new Dimension(barWidth, MIN_HEIGHT);
+        Dimension minSize = new Dimension(barWidth, minHeight);
 
         leftForceBar = new JPanel();
         leftForceBar.setName("Left Force Bar");
@@ -135,9 +139,9 @@ public class BarsPanel extends JPanel {
         }
         LOG.trace("Changing reference height of '{}' to {}", bar.getName(), normalizedValue);
 
-        final int barRange = maxHeight - MIN_HEIGHT;
+        final int barRange = maxHeight - minHeight;
         int newHeight = (int) Math.round(barRange * normalizedValue);
-        newHeight += MIN_HEIGHT;
+        newHeight += minHeight;
         bar.setMaximumSize(new Dimension(barWidth, newHeight));
         bar.revalidate();
     }
@@ -149,7 +153,7 @@ public class BarsPanel extends JPanel {
         double newValue = (mvcNormalizedValue - forceRangeMin) / barRange;
         int newHeight = (int) Math.round(maxHeight * newValue);
         newHeight = Math.min(newHeight, maxHeight);
-        newHeight = Math.max(newHeight, MIN_HEIGHT);
+        newHeight = Math.max(newHeight, minHeight);
         bar.setMaximumSize(new Dimension(barWidth, newHeight));
         bar.revalidate();
     }
