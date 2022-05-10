@@ -103,5 +103,11 @@ relative to the other times in the session
 `devices`: A list of hardware force devices with each element containing the full stream of data starting when one of the triggers is received  
 `triggers`: A lif of triggers received throughout the session
 
+## Implementation notes
+### Force bar height
+The height of the force bar controlled by the device is calculated in the method `com.github.neuralabc.spft.ui.BarsPanel.changeForceHeight` found [here](https://github.com/neuralabc/spft-java/blob/ef91a783441606002bbc7ccd13dfa1539469e3a0/src/main/java/com/github/neuralabc/spft/ui/BarsPanel.java#L145).
+It is a function of the raw value from the device, the MVC for that hand, the max and min force range proportion and the min and max height in pixels of the bar.
 
+It is probably simpler to look at the code but a (less precise) description in natural language would be that the height
+of the bar is the MVC-normalized force value (raw/mvc) linearly projected to a normalized range between the min and max force range 
 
