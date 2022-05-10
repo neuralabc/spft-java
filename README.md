@@ -111,3 +111,5 @@ It is a function of the raw value from the device, the MVC for that hand, the ma
 It is probably simpler to look at the code but a (less precise) description in natural language would be that the height
 of the bar is the MVC-normalized force value (raw/mvc) linearly projected to a normalized range between the min and max force range 
 
+- `((rawForce / MVC) - forceRangeMin)/(forceRangeMax-ForceRangeMin)`
+
