@@ -114,7 +114,7 @@ of the bar is the MVC-normalized force value (raw/mvc) linearly projected to a n
 - `((deviceForceValue / MVC) - forceRangeMin)/(forceRangeMax-forceRangeMin)`
 - where:
   - MVC = `maximumLeftVoluntaryContraction` in output yml
-  - deviceForceValue = `values` under `devices` in output ymp
+  - deviceForceValue = `values` under `devices` in output yml
 - deviceForceValue can be converted to actual force with the following:
   - for these sensors it is ~ 90.8. To determine it, we would need another calibrated sensor
   - values measure a range of 0-50000g, such that if you press with 9.81N it will return the value 1000
