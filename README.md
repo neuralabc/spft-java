@@ -111,5 +111,11 @@ It is a function of the raw value from the device, the MVC for that hand, the ma
 It is probably simpler to look at the code but a (less precise) description in natural language would be that the height
 of the bar is the MVC-normalized force value (raw/mvc) linearly projected to a normalized range between the min and max force range 
 
-- `((rawForce / MVC) - forceRangeMin)/(forceRangeMax-ForceRangeMin)`
-
+- `((deviceForceValue / MVC) - forceRangeMin)/(forceRangeMax-forceRangeMin)`
+- where:
+  - MVC = `maximumLeftVoluntaryContraction` in output yml
+  - deviceForceValue = `values` under `devices` in output ymp
+- deviceForceValue can be converted to actual force with the following:
+  - for these sensors it is ~ 90.8. To determine it, we would need another calibrated sensor
+  - values measure a range of 0-50000g, such that if you press with 9.81N it will return the value 1000
+  - sensors are calibrated on plug-in to correct whatever random offset there is to 0 -> **there _must_ be no pressure on the sensor when it is plugged in!**
