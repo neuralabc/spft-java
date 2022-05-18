@@ -80,11 +80,11 @@ Default:  false, the reference bars are inside
 
 
 ## Experiment Structure
-The highest level of a run is a _session_. Each session generates a single [output file](#output).  
+The highest level of a run is a _session_. Each session is specified by its own [config file](#configuration-file) and generates a single [output file](#output).  
 A session is composed of _blocks_. Each block is separated from the next block by an inter-block interval. A block starts
 with instructions of what the participant is supposed to do in that particular block and ends with feedback for that block.    
 A block is itself subdivided into _trials_. Each trial is separated from the next trial by an inter-trial interval. A trial 
-is a sequence of values that the participant is supposed to match. If a trials references a sequence with `valuesLeft` and
+is a sequence of values that the participant is supposed to match. If a trial references a sequence with `valuesLeft` and
 `valuesRight`, the trial is considered a bi-manual trial, this will use 4 bars (left, right reference & left right force)
 
 ## Output
