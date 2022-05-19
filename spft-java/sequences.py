@@ -23,9 +23,10 @@ def load_yaml(fname):
         data = yaml.safe_load(file)
     return data
 
-def parse_yaml_output(fname):
+def parse_yaml_output(fname, output_keys = ['blocks', 'devices', 'triggers']):
     """
     Parse output file (yaml formatted) from spft-java
+    Leave output_keys as default unless you really know what you are doing!
     """
     #TODO: identify if some keys are missing - likley not necessary given construction of yaml output
 
@@ -34,7 +35,6 @@ def parse_yaml_output(fname):
     ## blocks = data from what was presented in this session, including metadata, presentation heights, and timestamps
     ## devices = raw device data and timestamps
     ## triggers = time and values of triggers
-    output_keys = ['blocks', 'devices', 'triggers']
     yaml_data = load_yaml(fname)
     all_keys = yaml_data.keys()
     data = {}
