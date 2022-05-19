@@ -1,5 +1,50 @@
 # Code snippet for spft-java sequences
 import numpy as np
+import yaml
+
+def rescale_vec(vec, vec_min, vec_max, new_min, new_max):
+    """
+    Rescale from range defined by vec_min - vec_max to new_min - new_max
+    # = (c - a) * (z - y) / (b - a) + y
+
+    """
+    new_vec = (((vec-vec_min)*(new_max-new_min))/(vec_max-vec_min))+new_min
+    return new_vec
+
+def flip_vec(vec):
+    """
+    Flip values of vector about its mean
+    """
+    mm = np.mean(vec)
+    return ((vec-mm)*-1)+mm
+
+def load_yaml(fname):
+    with open(fname, 'r') as file:
+        data = yaml.safe_load(file)
+    return data
+
+def parse_yaml_output(fname):
+    """
+    Parse output file (yaml formatted) from spft-java
+    """
+    #TODO: identify if some keys are missing - likley not necessary given construction of yaml output
+
+    #these are the keys for where the output data is stored
+    # all timeseries data stored as 'times' and 'values'
+    ## blocks = data from what was presented in this session, including metadata, presentation heights, and timestamps
+    ## devices = raw device data and timestamps
+    ## triggers = time and values of triggers
+    output_keys = ['blocks', 'devices', 'triggers']
+    yaml_data = load_yaml(fname)
+    all_keys = yaml_data.keys()
+    data = {}
+    for key in all_keys:
+        if key not in output_keys:
+            data[key] = yaml_data[key]
+    ## now we can do something with the input data as necessary
+    ## TODO: PROCESSING!
+    return data
+
 presentation_frequency = 80 #80Hz
 
 # sequences from the Gryga (2012) and Jaeger (2020) papers
@@ -17,21 +62,7 @@ oldSMP=[113,116,118,121,124,127,130,133,136,139,141,144,147,149,152,154,157,159,
 oldLRN = np.array(oldLRN)
 oldSMP = np.array(oldSMP)
 
-def rescale_vec(vec, vec_min, vec_max, new_min, new_max):
-    """
-    Rescale from range defined by vec_min - vec_max to new_min - new_max
-    # = (c - a) * (z - y) / (b - a) + y
 
-    """
-    new_vec = (((vec-vec_min)*(new_max-new_min))/(vec_max-vec_min))+new_min
-    return new_vec
-
-def flip_vec(vec):
-    """
-    Flip values of vector about its mean
-    """
-    mm = np.mean(vec)
-    return ((vec-mm)*-1)+mm
 
 # compute the equivalent sequences for spft-java
 ## fit within .1 and .9 so that there is some undershoot and overshoot on the display to provide feedback to the participant when they exceed the height at either end.
