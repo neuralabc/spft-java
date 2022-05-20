@@ -1,6 +1,9 @@
 # Code snippet for spft-java sequences
 import numpy as np
 import yaml
+import os
+
+sequence_dir = './sequence_files/'
 
 def rescale_vec(vec, vec_min, vec_max, new_min, new_max):
     """
@@ -70,3 +73,9 @@ LRN=rescale_vec(oldLRN, np.array([oldLRN,oldSMP]).min(),np.array([oldLRN,oldSMP]
 SMP=rescale_vec(oldSMP, np.array([oldLRN,oldSMP]).min(),np.array([oldLRN,oldSMP]).max(),.1,.9)
 LRN_flip=flip_vec(LRN)
 SMP_flip=flip_vec(SMP)
+
+#this dumps the raw sequence, you have to manually add the brackets for copy-pasting into a potential config file
+# np.savetxt(os.path.join(sequence_dir,'LRN.txt'),LRN,newline=', ',fmt='%.4f')
+# np.savetxt(os.path.join(sequence_dir,'SMP.txt'),SMP,newline=', ',fmt='%.4f')
+# np.savetxt(os.path.join(sequence_dir,'LRN_flip.txt'),LRN_flip,newline=', ',fmt='%.4f')
+# np.savetxt(os.path.join(sequence_dir,'SMP_flip.txt'),SMP_flip,newline=', ',fmt='%.4f')
