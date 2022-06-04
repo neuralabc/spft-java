@@ -106,6 +106,16 @@ def compute_temporal_lag(response_height, target_height):
 # print "Unknown shift: ", unknown_shift
 # print "Found   shift: ", found_shift
 
+#this works fine, still in discrete units but could parameterize the number that we
+# interp to to sub-sample the units as necessary (precision > 80Hz)
+# from scipy import signal
+
+# yy = interp1d(np.arange(Y.size),Y)(np.arange(0,Y.size-1,.01))
+# yy_shifted = interp1d(np.arange(Y_shifted.size),Y_shifted)(np.arange(0,Y_shifted.size-1,.01))
+# xcorr = signal.correlate(yy,yy_shifted,mode='full')
+# lags = signal.correlation_lags(yy.size,yy_shifted.size,mode='full')
+# lag = lags[np.argmax(xcorr)]
+# print(lag)
     num_trials = response_height.shape[0]
     xcorr_lag = np.zeros(num_trials,2)
     for trial_idx in np.arange(0,num_trials):
