@@ -75,13 +75,175 @@ def compute_normalized_force_response(device_force_values, MVC, forceRangeMin=0.
         norm_resp[norm_resp>clamp[1]] = clamp[1]
     return norm_resp
 
-def compute_temporal_lag(response_height, target_height):
+def lag_calc(yy,yy_shifted):
     """
-    Compute the cross-correlation between two signals that vary over time (response_height and target_height)
-    response_height:    participant response in normalized units
-    target_height:      target sequence
+    Calculate lag, in discrete samples with cross-correlation. I.e., max resolution is one sample (1/freq)
     """
+    #easy way, with max res of 1 unit of time
+    #returns positive value for lag (i.e., yy_shifted occurs after yy in time)
+    from scipy import signal
+    
+    xcorr = signal.correlate(yy,yy_shifted,mode='full')
+    lags = signal.correlation_lags(yy.size,yy_shifted.size,mode='full')
+    lag = lags[np.argmax(xcorr)]
+    return lag*-1
 
+def lag_calc_ms(for_time,ref_vals_interp,for_vals,initial_guess=0):
+    """
+    Based on least squares version, but turns out to be less accurate in some cases due to requirement to fill
+    initial_guess = 0 is a zero time lag
+    """
+    # # compute temporal lag
+    def err_func(p): #we fill data at the ends with the last value recorded for that trial (and first with first)
+        # return interp1d(for_time,ref_vals_interp,kind='cubic',fill_value="extrapolate")(for_time[1:-1]+p[0]) - for_vals[1:-1]
+        return interp1d(for_time,ref_vals_interp,kind='cubic',bounds_error=False,fill_value=(for_vals[0],for_vals[-1]))(for_time[1:-1]+p[0]) - for_vals[1:-1]
+        # return interp1d(for_time,ref_vals_interp,kind='cubic',bounds_error=False,fill_value=np.mean(for_vals))(for_time[1:-1]+p[0]) - for_vals[1:-1]
+    p0 = [initial_guess,] # Inital guess: 0 = no shift
+    found_shift = leastsq(err_func,p0)[0][0]
+    return found_shift*-1 #positive values are greater lag (i.e., response after reference)
+
+def score_spft_data(data,for_resp,description = "e.g., right hand performance", reference_designation='leftReference'):
+    """
+    Scores all spft data for a single device/hand specified by for_resp (the device) and reference_designation (the ref target presentation)
+    """
+    ## loop over all blocks and trials and score data (unimanual)
+    MVC = data['maximumLeftVoluntaryContraction']
+    #all times and values from the device over the course of the experiment, stored as single vectors
+    for_time_all = np.array(for_resp['times'])
+    for_vals_all = compute_normalized_force_response(np.array(for_resp['values']),MVC) #convert to normalized value for comparison
+
+    all_lag_xcorr_ms = []
+    all_lag_lstsq_ms = []
+    all_raw_rmse = []
+    all_raw_sse = []
+    all_rmse = []
+    all_sse = []
+
+    res = {} #results dictionary
+    res['reference_designation'] = reference_designation #L or R reference bar
+    res['description'] = description
+    res['all'] = {}
+
+    for block_idx in np.arange(len(blocks)):
+        res[f'block_{block_idx}'] = {}
+        
+        lag_xcorr_ms = []
+        lag_lstsq_ms = []
+        raw_rmse = []
+        raw_sse = []
+        rmse = []
+        sse = []
+
+        for trial_idx in np.arange(len(blocks[block_idx]['trials'])):
+    
+            ref_time = np.array(blocks[block_idx]['trials'][trial_idx][reference_designation]['times'])
+            ref_vals = np.array(blocks[block_idx]['trials'][trial_idx][reference_designation]['values'])
+
+            start = ref_time[0]
+            end = ref_time[-1]
+            # print(end-start)
+
+            # compute mask of data in for response vector associated with this specific trial, select time/vals
+            for_trial_mask = (for_time_all-start >= 0) & (for_time_all-end+1000<=0) 
+            for_time = for_time_all[for_trial_mask]
+            for_vals = for_vals_all[for_trial_mask]
+
+            # bring ref vals into the same time space by interpolating, for direct comparison
+            # then compute lag and other metrics, also shift by lag and compute metrics again
+            # times are in ms, and we use the median time per interval for the conversion of lag (in timestep units) to ms
+            ref_vals_interp = np.interp(for_time,ref_time,ref_vals) #linear (piece-wise) interpolation of presented target bar positions into the actual response, now we can subtract directly
+            # ref_vals_interp = interp1d(ref_time,ref_vals,kind='cubic')(for_time) #does not seem to make a difference here
+            trial_lag_xcorr = lag_calc(ref_vals_interp,for_vals) #in samples
+            time_per_interval = np.median(np.diff(for_time)) #time, in ms
+            time_std_per_interval = np.std(np.diff(for_time)) #time, in ms
+            trial_lag_xcorr_ms = trial_lag_xcorr*time_per_interval
+            for_time = for_time - for_time[0] #zero time so that our plots start at 0
+            trial_lag_ms = lag_calc_ms(for_time,ref_vals_interp,for_vals) #alternative way, not sure if this is correct in the end
+            # print(trial_lag_ms)
+            
+            # raw RMSE and SSE
+            trial_rmse = np.sqrt(np.mean((ref_vals_interp-for_vals)**2)) #root mean squared error
+            trial_sse = ((ref_vals_interp-for_vals)**2).sum()
+
+
+            # we now take the aligned vectors, snip the parts that we do not have data for, and compare to compute our lag-aligned version
+            if trial_lag_xcorr >0: #we have a lag (i.e., the force comes after the reference)
+                snipped_for_vals = for_vals[trial_lag_xcorr:]
+                snipped_ref_vals = ref_vals_interp[0:trial_lag_xcorr*-1]
+                snipped_for_time = for_time[trial_lag_xcorr:]
+            elif trial_lag_xcorr <0: #force preceded the reference
+                snipped_for_vals = for_vals[0:trial_lag_xcorr*-1]
+                snipped_ref_vals = ref_vals_interp[trial_lag_xcorr:]
+                snipped_for_time = for_time[0:trial_lag_xcorr*-1]
+            elif trial_lag_xcorr == 0:
+                snipped_for_vals = for_vals
+                snipped_ref_vals = ref_vals_interp
+                snipped_for_time = for_time
+
+            # proportion of elements used to compute RMSE and SSE
+            trial_prop_good_els = snipped_for_vals.shape[0] / for_vals.shape[0] 
+            # lag-algined RMSE and SSE
+            lag_aligned_trial_rmse = np.sqrt(np.mean((snipped_ref_vals-snipped_for_vals)**2)) #root mean squared error #TOOD: have someone confirm algo
+            lag_aligned_trial_sse = ((snipped_ref_vals-snipped_for_vals)**2).sum()
+            
+            # print(f'Block {block_idx} - Trial {trial_idx}')
+            # print(f'median interval time: {time_per_interval:.2f} ms')
+            # print(f'std interval time   : {time_std_per_interval:.2f} ms')
+            # print(f'lag (time steps)    : {trial_lag_xcorr}')
+            # print(f'lag                 : {trial_lag_xcorr_ms:.2f} ms')
+            # print(f'lag (lstsq)         : {trial_lag_ms:.2f}')
+            # print(f'rmse                : {trial_rmse:.2f} ms')
+            # print(f'sse                 : {trial_sse:.2f} ms')
+            # print(f'lag-aligned rmse    : {lag_aligned_trial_rmse:.2f} ms')
+            # print(f'lag-aligned sse     : {lag_aligned_trial_sse:.2f} ms')
+            # print(f'prop good elelements: {trial_prop_good_els:.2f}')
+            # print("")
+            
+            # print(np.corrcoef(snipped_for_vals,snipped_ref_vals)[0,1])
+            # print(np.corrcoef(ref_vals_interp,np.interp(for_time+trial_lag_ms, for_time,for_vals))[0,1])
+            
+            lag_xcorr_ms.append(trial_lag_xcorr_ms)
+            lag_lstsq_ms.append(trial_lag_ms)
+            raw_rmse.append(trial_rmse)
+            raw_sse.append(trial_sse)
+            rmse.append(lag_aligned_trial_rmse)
+            sse.append(lag_aligned_trial_sse)
+            
+            all_lag_xcorr_ms.append(trial_lag_xcorr_ms)
+            all_lag_lstsq_ms.append(trial_lag_ms)
+            all_raw_rmse.append(trial_rmse)
+            all_raw_sse.append(trial_sse)
+            all_rmse.append(lag_aligned_trial_rmse)
+            all_sse.append(lag_aligned_trial_sse)
+            
+            # plt.figure()
+            # plt.plot(for_time,ref_vals_interp,'k-',label='reference')
+            # plt.plot(for_time,for_vals,'b-',alpha=0.5, label='force')
+            # # plt.plot(snipped_for_time,snipped_ref_vals,'k-',label='reference')
+            # plt.plot(snipped_for_time-trial_lag_xcorr_ms,snipped_for_vals,'r:',label='aligned force')
+            # plt.plot(snipped_for_time-trial_lag_ms,snipped_for_vals,'g:',label='aligned force')
+            
+            # # plt.text(f'lag {trial_lag_xcorr_ms:.2f} ms')
+            # plt.legend()
+        #     print(np.corrcoef(snipped_for_vals, snipped_ref_vals)[0,1])
+        #     print(trial_lag_xcorr)
+        #     print(np.corrcoef(snipped_for_vals[first_match_idx:], snipped_ref_vals[first_match_idx:])[0,1])
+        #     if trial_idx ==1:
+        #         break
+        res[f'block_{block_idx}']['lag_xcorr_ms'] = np.array(lag_xcorr_ms)
+        res[f'block_{block_idx}']['lag_lstsq_ms'] = np.array(lag_lstsq_ms)
+        res[f'block_{block_idx}']['raw_rmse'] = np.array(raw_rmse)
+        res[f'block_{block_idx}']['raw_sse'] = np.array(raw_sse)
+        res[f'block_{block_idx}']['rmse'] = np.array(rmse)
+        res[f'block_{block_idx}']['sse'] = np.array(sse)
+
+    res['all']['lag_xcorr_ms'] = np.array(all_lag_xcorr_ms)
+    res['all']['lag_lstsq_ms'] = np.array(all_lag_lstsq_ms)
+    res['all']['raw_rmse'] = np.array(all_raw_rmse)
+    res['all']['raw_sse'] = np.array(all_raw_sse)
+    res['all']['rmse'] = np.array(all_rmse)
+    res['all']['sse'] = np.array(all_sse)
+    return res
 # https://stackoverflow.com/questions/13826290/estimating-small-time-shift-between-two-time-series
 # import numpy as np
 # from scipy.interpolate import interp1d
