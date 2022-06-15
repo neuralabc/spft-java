@@ -64,6 +64,7 @@ stage/
 \#*#
 .#*
 /src/test/output/
+/spft/output/
 
 *.jar
 spft/output/xxx_Test_Right_Only_out-file.yml
