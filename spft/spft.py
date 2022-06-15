@@ -90,8 +90,8 @@ def lag_calc(yy,yy_shifted):
 
 def lag_calc_ms(for_time,ref_vals_interp,for_vals,initial_guess=0):
     """
-    Based on least squares version, but turns out to be less accurate in some cases due to requirement to fill
-    initial_guess = 0 is a zero time lag
+    Based on least squares version, but turns out to be less accurate in some/many cases because extra data interpolated after/before
+    there is real data interferes with the estimate
     """
     # # compute temporal lag
     def err_func(p): #we fill data at the ends with the last value recorded for that trial (and first with first)
