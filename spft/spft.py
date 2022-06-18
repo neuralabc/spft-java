@@ -102,10 +102,22 @@ def lag_calc_ms(for_time,ref_vals_interp,for_vals,initial_guess=0):
     found_shift = leastsq(err_func,p0)[0][0]
     return found_shift*-1 #positive values are greater lag (i.e., response after reference)
 
-def score_spft_data(data,for_resp,description = "e.g., right hand performance", reference_designation='leftReference'):
+def get_trial_type_from_name(trial_name, trial_type_keys):
     """
-    Scores all spft data for a single device/hand specified by for_resp (the device) and reference_designation (the ref target presentation)
+    Helper function to return the trial type from given trial_name and set of all possible types
     """
+    trial_key_idx = []    
+    for idx,trial_name_key in enumerate(trial_type_keys):
+        if trial_name_key in trial_name:
+            trial_key_idx.append(idx)
+    if len(trial_key_idx)>1:
+        print('The trial names set in your config file were not uniquely identifiable')
+        print('Exiting --------------------------------------------------------------')
+        return 'XXX_ERROR_XXX'
+    else:
+        return trial_type_keys[trial_key_idx[0]]
+
+def score_spft_data(data,for_resp,description = "e.g., right hand performance", reference_designation='leftReference', trial_type_keys = ['LRN','SMP','RST']):
     ## loop over all blocks and trials and score data (unimanual)
     MVC = data['maximumLeftVoluntaryContraction']
     #all times and values from the device over the course of the experiment, stored as single vectors
@@ -123,19 +135,29 @@ def score_spft_data(data,for_resp,description = "e.g., right hand performance", 
     res['reference_designation'] = reference_designation #L or R reference bar
     res['description'] = description
     res['all'] = {}
+    for trial_type in trial_type_keys:
+        res['all'][trial_type] = {}
+        res['all'][trial_type]['lag_xcorr_ms'] = []
+        res['all'][trial_type]['lag_lstsq_ms'] = []
+        res['all'][trial_type]['raw_rmse'] = []
+        res['all'][trial_type]['raw_sse'] = []
+        res['all'][trial_type]['rmse'] = []
+        res['all'][trial_type]['sse'] = []
 
     for block_idx in np.arange(len(blocks)):
         res[f'block_{block_idx}'] = {}
-        
-        lag_xcorr_ms = []
-        lag_lstsq_ms = []
-        raw_rmse = []
-        raw_sse = []
-        rmse = []
-        sse = []
+        for trial_type in trial_type_keys:
+            res[f'block_{block_idx}'][trial_type] = {}
+            res[f'block_{block_idx}'][trial_type]['lag_xcorr_ms'] = []
+            res[f'block_{block_idx}'][trial_type]['lag_lstsq_ms'] = []
+            res[f'block_{block_idx}'][trial_type]['raw_rmse'] = []
+            res[f'block_{block_idx}'][trial_type]['raw_sse'] = []
+            res[f'block_{block_idx}'][trial_type]['rmse'] = []
+            res[f'block_{block_idx}'][trial_type]['sse'] = []
 
         for trial_idx in np.arange(len(blocks[block_idx]['trials'])):
-    
+            trial_name = blocks[block_idx]['trials'][trial_idx]['trialName']
+            trial_type = get_trial_type_from_name(trial_name,trial_type_keys)
             ref_time = np.array(blocks[block_idx]['trials'][trial_idx][reference_designation]['times'])
             ref_vals = np.array(blocks[block_idx]['trials'][trial_idx][reference_designation]['values'])
 
@@ -202,19 +224,29 @@ def score_spft_data(data,for_resp,description = "e.g., right hand performance", 
             # print(np.corrcoef(snipped_for_vals,snipped_ref_vals)[0,1])
             # print(np.corrcoef(ref_vals_interp,np.interp(for_time+trial_lag_ms, for_time,for_vals))[0,1])
             
-            lag_xcorr_ms.append(trial_lag_xcorr_ms)
-            lag_lstsq_ms.append(trial_lag_ms)
-            raw_rmse.append(trial_rmse)
-            raw_sse.append(trial_sse)
-            rmse.append(lag_aligned_trial_rmse)
-            sse.append(lag_aligned_trial_sse)
+            #block-wise data
+            res[f'block_{block_idx}'][trial_type]['lag_xcorr_ms'].append(trial_lag_xcorr_ms)
+            res[f'block_{block_idx}'][trial_type]['lag_lstsq_ms'].append(trial_lag_ms)
+            res[f'block_{block_idx}'][trial_type]['raw_rmse'].append(trial_rmse)
+            res[f'block_{block_idx}'][trial_type]['raw_sse'].append(trial_sse)
+            res[f'block_{block_idx}'][trial_type]['rmse'].append(lag_aligned_trial_rmse)
+            res[f'block_{block_idx}'][trial_type]['sse'].append(lag_aligned_trial_sse)
             
-            all_lag_xcorr_ms.append(trial_lag_xcorr_ms)
-            all_lag_lstsq_ms.append(trial_lag_ms)
-            all_raw_rmse.append(trial_rmse)
-            all_raw_sse.append(trial_sse)
-            all_rmse.append(lag_aligned_trial_rmse)
-            all_sse.append(lag_aligned_trial_sse)
+            #all data concatenated
+            res['all'][trial_type]['lag_xcorr_ms'].append(trial_lag_xcorr_ms)
+            res['all'][trial_type]['lag_lstsq_ms'].append(trial_lag_ms)
+            res['all'][trial_type]['raw_rmse'].append(trial_rmse)
+            res['all'][trial_type]['raw_sse'].append(trial_sse)
+            res['all'][trial_type]['rmse'].append(lag_aligned_trial_rmse)
+            res['all'][trial_type]['sse'].append(lag_aligned_trial_sse)
+        
+        #convert the current block results to numpy arrays
+        res[f'block_{block_idx}'][trial_type]['lag_xcorr_ms'] = np.array(res[f'block_{block_idx}'][trial_type]['lag_xcorr_ms'])
+        res[f'block_{block_idx}'][trial_type]['lag_lstsq_ms'] = np.array(res[f'block_{block_idx}'][trial_type]['lag_lstsq_ms'])
+        res[f'block_{block_idx}'][trial_type]['raw_rmse'] = np.array(res[f'block_{block_idx}'][trial_type]['raw_rmse'])
+        res[f'block_{block_idx}'][trial_type]['raw_sse'] = np.array(res[f'block_{block_idx}'][trial_type]['raw_sse'])
+        res[f'block_{block_idx}'][trial_type]['rmse'] = np.array(res[f'block_{block_idx}'][trial_type]['rmse'])
+        res[f'block_{block_idx}'][trial_type]['sse'] = np.array(res[f'block_{block_idx}'][trial_type]['sse'])
             
             # plt.figure()
             # plt.plot(for_time,ref_vals_interp,'k-',label='reference')
@@ -230,19 +262,15 @@ def score_spft_data(data,for_resp,description = "e.g., right hand performance", 
         #     print(np.corrcoef(snipped_for_vals[first_match_idx:], snipped_ref_vals[first_match_idx:])[0,1])
         #     if trial_idx ==1:
         #         break
-        res[f'block_{block_idx}']['lag_xcorr_ms'] = np.array(lag_xcorr_ms)
-        res[f'block_{block_idx}']['lag_lstsq_ms'] = np.array(lag_lstsq_ms)
-        res[f'block_{block_idx}']['raw_rmse'] = np.array(raw_rmse)
-        res[f'block_{block_idx}']['raw_sse'] = np.array(raw_sse)
-        res[f'block_{block_idx}']['rmse'] = np.array(rmse)
-        res[f'block_{block_idx}']['sse'] = np.array(sse)
 
-    res['all']['lag_xcorr_ms'] = np.array(all_lag_xcorr_ms)
-    res['all']['lag_lstsq_ms'] = np.array(all_lag_lstsq_ms)
-    res['all']['raw_rmse'] = np.array(all_raw_rmse)
-    res['all']['raw_sse'] = np.array(all_raw_sse)
-    res['all']['rmse'] = np.array(all_rmse)
-    res['all']['sse'] = np.array(all_sse)
+    #convert summary results in 'all' to numpy arrays
+    res['all'][trial_type]['lag_xcorr_ms'] = np.array(res['all'][trial_type]['lag_xcorr_ms'])
+    res['all'][trial_type]['lag_lstsq_ms'] = np.array(res['all'][trial_type]['lag_lstsq_ms'])
+    res['all'][trial_type]['raw_rmse'] = np.array(res['all'][trial_type]['raw_rmse'])
+    res['all'][trial_type]['raw_sse'] = np.array(res['all'][trial_type]['raw_sse'])
+    res['all'][trial_type]['rmse'] = np.array(res['all'][trial_type]['rmse'])
+    res['all'][trial_type]['sse'] = np.array(res['all'][trial_type]['sse'])
+        
     return res
 # https://stackoverflow.com/questions/13826290/estimating-small-time-shift-between-two-time-series
 # import numpy as np
