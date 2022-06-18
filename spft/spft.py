@@ -2,37 +2,6 @@ from statistics import mode
 import yaml
 import numpy as np
 
-
-##
-# yaml data storage notes:
-# blocks = data['blocks']
-# input data 1st block 1st trial (left): blocks[0]['trials'][0]['leftReference']
-#       times,values
-# block start time @ startTimestamp, end @ endTimestamp
-##
-
-MVC = data['maximumLeftVoluntaryContraction']
-t_time = np.array(blocks[0]['trials'][0]['leftReference']['times'])
-t_vals = np.array(blocks[0]['trials'][0]['leftReference']['values'])
-
-#all times from the device over the course of the experiment
-resp = data['devices'][0]
-all_f_time = np.array(resp['times'])
-all_f_vals = compute_normalized_force_response(np.array(resp['values']),MVC)
-
-#loop this to identify the start and end times of the trials
-start = t_time[0]
-end = t_time[-1]
-
-f_trial_mask = (all_f_time-start >= 0) & (all_f_time-end<=0)
-f_time = all_f_time[f_trial_mask]
-f_vals = all_f_vals[f_trial_mask]
-
-t_vals_interp = np.interp(f_time,t_time,t_vals) #linear (piece-wise) interpolation of presented target bar positions into the actual response, now we can subtract directly
-
-trial_rmse = np.sqrt(np.mean((t_vals_interp-f_vals)**2)) #root mean squared error #TOOD: have someone confirm algo
-trial_sse = ((t_vals_interp-f_vals)**2).sum()
-
 def load_yaml(fname):
     with open(fname, 'r') as file:
         data = yaml.safe_load(file)
@@ -93,6 +62,8 @@ def lag_calc_ms(for_time,ref_vals_interp,for_vals,initial_guess=0):
     Based on least squares version, but turns out to be less accurate in some/many cases because extra data interpolated after/before
     there is real data interferes with the estimate
     """
+    from scipy.interpolate import interp1d
+    from scipy.optimize import leastsq
     # # compute temporal lag
     def err_func(p): #we fill data at the ends with the last value recorded for that trial (and first with first)
         # return interp1d(for_time,ref_vals_interp,kind='cubic',fill_value="extrapolate")(for_time[1:-1]+p[0]) - for_vals[1:-1]
@@ -117,9 +88,14 @@ def get_trial_type_from_name(trial_name, trial_type_keys):
     else:
         return trial_type_keys[trial_key_idx[0]]
 
-def score_spft_data(data,for_resp,description = "e.g., right hand performance", reference_designation='leftReference', trial_type_keys = ['LRN','SMP','RST']):
-    ## loop over all blocks and trials and score data (unimanual)
+def score_spft_data(data,for_resp,description = "e.g., right hand performance", 
+                    reference_designation='leftReference', trial_type_keys = ['LRN','SMP','RST'],
+                    exclude_meta_keys = ['blocks','devices']):
+    """
+    exclude_meta_keys:      dictionary keys to exclude from stored metadata
+    """
     MVC = data['maximumLeftVoluntaryContraction']
+    blocks = data['blocks']
     #all times and values from the device over the course of the experiment, stored as single vectors
     for_time_all = np.array(for_resp['times'])
     for_vals_all = compute_normalized_force_response(np.array(for_resp['values']),MVC) #convert to normalized value for comparison
@@ -132,6 +108,9 @@ def score_spft_data(data,for_resp,description = "e.g., right hand performance", 
     all_sse = []
 
     res = {} #results dictionary
+    for key in data.keys():
+        if not (key in exclude_meta_keys):
+            res[key] = data[key]
     res['reference_designation'] = reference_designation #L or R reference bar
     res['description'] = description
     res['all'] = {}
@@ -272,43 +251,3 @@ def score_spft_data(data,for_resp,description = "e.g., right hand performance", 
     res['all'][trial_type]['sse'] = np.array(res['all'][trial_type]['sse'])
         
     return res
-# https://stackoverflow.com/questions/13826290/estimating-small-time-shift-between-two-time-series
-# import numpy as np
-# from scipy.interpolate import interp1d
-# from scipy.optimize import leastsq
-
-# def yvals(x):
-#     return np.sin(x)+np.sin(2*x)+np.sin(3*x)
-
-# dx = .1
-# X = np.arange(0,2*np.pi,dx)
-# Y = yvals(X)
-
-# unknown_shift = np.random.random() * dx
-# Y_shifted = yvals(X + unknown_shift)
-
-# def err_func(p):
-#     return interp1d(X,Y)(X[1:-1]+p[0]) - Y_shifted[1:-1]
-
-# p0 = [0,] # Inital guess of no shift
-# found_shift = leastsq(err_func,p0)[0][0]
-
-# print "Unknown shift: ", unknown_shift
-# print "Found   shift: ", found_shift
-
-#this works fine, still in discrete units but could parameterize the number that we
-# interp to to sub-sample the units as necessary (precision > 80Hz)
-# from scipy import signal
-
-# yy = interp1d(np.arange(Y.size),Y)(np.arange(0,Y.size-1,.01))
-# yy_shifted = interp1d(np.arange(Y_shifted.size),Y_shifted)(np.arange(0,Y_shifted.size-1,.01))
-# xcorr = signal.correlate(yy,yy_shifted,mode='full')
-# lags = signal.correlation_lags(yy.size,yy_shifted.size,mode='full')
-# lag = lags[np.argmax(xcorr)]
-# print(lag)
-    num_trials = response_height.shape[0]
-    xcorr_lag = np.zeros(num_trials,2)
-    for trial_idx in np.arange(0,num_trials):
-        xcorr = np.correlate(response_height[trial_idx],target_height,mode='full')
-        mmax = np.argmax(xcorr)
-
