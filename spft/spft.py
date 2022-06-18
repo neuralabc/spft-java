@@ -88,7 +88,7 @@ def get_trial_type_from_name(trial_name, trial_type_keys):
     else:
         return trial_type_keys[trial_key_idx[0]]
 
-def score_spft_data(data,for_resp,description = "e.g., right hand performance", 
+def score_spft_data(data,device_idx=0,description = "e.g., right hand performance", 
                     reference_designation='leftReference', trial_type_keys = ['LRN','SMP','RST'],
                     exclude_meta_keys = ['blocks','devices']):
     """
@@ -100,6 +100,7 @@ def score_spft_data(data,for_resp,description = "e.g., right hand performance",
     """
     MVC = data['maximumLeftVoluntaryContraction']
     blocks = data['blocks']
+    for_resp = data['devices'][device_idx]
     #all times and values from the device over the course of the experiment, stored as single vectors
     for_time_all = np.array(for_resp['times'])
     for_vals_all = compute_normalized_force_response(np.array(for_resp['values']),MVC) #convert to normalized value for comparison
@@ -159,7 +160,7 @@ def score_spft_data(data,for_resp,description = "e.g., right hand performance",
             ref_vals_interp = np.interp(for_time,ref_time,ref_vals) #linear (piece-wise) interpolation of presented target bar positions into the actual response, now we can subtract directly
             # ref_vals_interp = interp1d(ref_time,ref_vals,kind='cubic')(for_time) #does not seem to make a difference here
             trial_lag_xcorr = lag_calc(ref_vals_interp,for_vals) #in samples
-            time_per_interval = np.median(np.diff(for_time)) #time, in ms
+            time_per_interval = np.mean(np.diff(for_time)) #time, in ms
             time_std_per_interval = np.std(np.diff(for_time)) #time, in ms
             trial_lag_xcorr_ms = trial_lag_xcorr*time_per_interval
             for_time = for_time - for_time[0] #zero time so that our plots start at 0
