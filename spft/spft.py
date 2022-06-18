@@ -92,7 +92,11 @@ def score_spft_data(data,for_resp,description = "e.g., right hand performance",
                     reference_designation='leftReference', trial_type_keys = ['LRN','SMP','RST'],
                     exclude_meta_keys = ['blocks','devices']):
     """
-    exclude_meta_keys:      dictionary keys to exclude from stored metadata
+    Compute lag and rmse/sse for SPFT data per trial for all trial_type_keys. Output dictionary contains metadata
+    from input, blocked data by trial_type ['block_?'] and concatenated data by trial_type ['all'].
+    Triggers not yet handled in the processing (TODO: output summary scored data between each set of triggers)
+    exclude_meta_keys:      dictionary keys to exclude from stored metadata, by default ['blocks','devices'],
+                            which are the presentation data and the response data respectively 
     """
     MVC = data['maximumLeftVoluntaryContraction']
     blocks = data['blocks']
