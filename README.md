@@ -26,9 +26,9 @@ This application uses Java 17. Make sure it is installed before running the appl
 Java 11 may still be the default for Ubuntu-based OSs, so for ease of use you can create a custom conda environment that includes Java 17
 
 ```
-conda create -n java17 mamba
+conda create -n java17 mamba -y
 conda activate java17
-mamba install -c conda-forge java-1.7.0-openjdk-headless-cos7-x86_64
+mamba install -c conda-forge java-1.7.0-openjdk-headless-cos7-x86_64 -y
 ```
 
 Once a JDK or JRE is installed, run
