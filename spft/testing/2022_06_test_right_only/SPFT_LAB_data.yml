@@ -16,11 +16,11 @@ blocks:
     feedbackDuration: 2000
     interTrialInterval: 1000
     trials:
-      - name: "1_LRN"
+      - name: "1_SMP"
         sequenceRef: "smp"
-      - name: "2_LRN"
+      - name: "2_SMP"
         sequenceRef: "smp"
-      - name: "3_LRN"
+      - name: "3_SMP"
         sequenceRef: "smp"
       - name: "4_LRN"
         sequenceRef: "lrn"
@@ -35,11 +35,11 @@ blocks:
     feedbackDuration: 2000
     interTrialInterval: 500
     trials:
-      - name: "7_LRN"
+      - name: "7_SMP"
         sequenceRef: "smp"
-      - name: "8_LRN"
+      - name: "8_SMP"
         sequenceRef: "smp"
-      - name: "9_LRN"
+      - name: "9_SMP"
         sequenceRef: "smp"
       - name: "10_LRN"
         sequenceRef: "lrn"
@@ -54,11 +54,11 @@ blocks:
     feedbackDuration: 2000
     interTrialInterval: 500
     trials:
-      - name: "13_LRN"
+      - name: "13_SMP"
         sequenceRef: "smp"
-      - name: "14_LRN"
+      - name: "14_SMP"
         sequenceRef: "smp"
-      - name: "15_LRN"
+      - name: "15_SMP"
         sequenceRef: "smp"
       - name: "16_LRN"
         sequenceRef: "lrn"
