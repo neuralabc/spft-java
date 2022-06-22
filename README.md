@@ -31,7 +31,7 @@ Java 11 may still be the default for Ubuntu-based OSs, so you must install it ex
 sudo apt install openjdk-17-jre  openjdk-17-jdk
 ```
 
-Check for proper installation by checking the output of `java --version`
+Check that the proper installation is active by running `java --version`
 
 Once a JDK or JRE is installed, run
 
