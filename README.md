@@ -24,12 +24,14 @@ This application uses Java 17. Make sure it is installed before running the appl
 
 - if you are running this on a linux system, you will require explicit access to the incoming data from ports {`/dev/ttyACM0`; `/dev/ttyACM1`}. This can be granted by the _system administrator_ providing the user with access to the `dialout` group with `sudo usermod -a -G dialout theUserNameHere`
 
-### Installing Java17 within conda
-Java 11 may still be the default for Ubuntu-based OSs, so for ease of use you can create a custom conda environment that includes Java 17
+### Installing Java17
+Java 11 may still be the default for Ubuntu-based OSs, so you must install it explicitly
 
 ```
 sudo apt install openjdk-17-jre  openjdk-17-jdk
 ```
+
+Check for proper installation by checking the output of `java --version`
 
 Once a JDK or JRE is installed, run
 
