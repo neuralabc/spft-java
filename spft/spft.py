@@ -47,6 +47,7 @@ def compute_normalized_force_response(device_force_values, MVC, forceRangeMin=0.
 def lag_calc(yy,yy_shifted):
     """
     Calculate lag, in discrete samples with cross-correlation. I.e., max resolution is one sample (1/freq)
+    Will result in large values in cases where yy_shifted does not change much/at all at the beginning or end of trial (i.e., participant loses focus)
     """
     #easy way, with max res of 1 unit of time
     #returns positive value for lag (i.e., yy_shifted occurs after yy in time)
