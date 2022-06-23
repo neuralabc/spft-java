@@ -45,9 +45,10 @@ public class Trial {
 
     public void run(ExperimentFrame.Binding binding, Path outputFile) throws InterruptedException, IOException {
         LOG.info("\t\tStarting trial '{}'", config.getName());
-
-        int delay = 1000 / sequence.getFrequency();
-
+        LOG.info("\t\tFrequency: '{}' Hz", sequence.getFrequency());
+        LOG.info("\t\tExpected | Actual Delay: '{} | {}' ms", 1000f/sequence.getFrequency(),1000/sequence.getFrequency());
+        
+        int delay = Math.round(1000f / sequence.getFrequency());
         Presentation presentation = new Presentation(binding);
         Timer timer = new Timer(delay, presentation);
         timer.setInitialDelay(0);
