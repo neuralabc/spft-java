@@ -33,7 +33,7 @@ blocks:
     instructionsDuration: 2000
     feedback: "Block2 finished"
     feedbackDuration: 2000
-    interTrialInterval: 500
+    interTrialInterval: 1000
     trials:
       - name: "7_SMP"
         sequenceRef: "smp"
@@ -52,7 +52,7 @@ blocks:
     instructionsDuration: 2000
     feedback: "Block3 finished"
     feedbackDuration: 2000
-    interTrialInterval: 500
+    interTrialInterval: 1000
     trials:
       - name: "13_SMP"
         sequenceRef: "smp"
