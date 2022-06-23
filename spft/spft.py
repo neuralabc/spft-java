@@ -90,7 +90,7 @@ def get_trial_type_from_name(trial_name, trial_type_keys):
 
 def score_spft_data(data,device_idx=0,description = "e.g., right hand performance", 
                     reference_designation='leftReference', trial_type_keys = ['LRN','SMP','RST'],
-                    exclude_meta_keys = ['blocks','devices']):
+                    exclude_meta_keys = ['blocks','devices'], save_trial_data=True):
     """
     Compute lag and rmse/sse for SPFT data per trial for all trial_type_keys. Output dictionary contains metadata
     from input, blocked data by trial_type ['block_?'] and concatenated data by trial_type ['all'].
@@ -105,13 +105,6 @@ def score_spft_data(data,device_idx=0,description = "e.g., right hand performanc
     for_time_all = np.array(for_resp['times'])
     for_vals_all = compute_normalized_force_response(np.array(for_resp['values']),MVC) #convert to normalized value for comparison
 
-    all_lag_xcorr_ms = []
-    all_lag_lstsq_ms = []
-    all_raw_rmse = []
-    all_raw_sse = []
-    all_rmse = []
-    all_sse = []
-
     res = {} #results dictionary
     for key in data.keys():
         if not (key in exclude_meta_keys):
@@ -119,6 +112,19 @@ def score_spft_data(data,device_idx=0,description = "e.g., right hand performanc
     res['reference_designation'] = reference_designation #L or R reference bar
     res['description'] = description
     res['all'] = {}
+    if save_trial_data:
+        res['trial_data'] = {}
+        res['trial_data']['ref_interp'] = []
+        res['trial_data']['for_interp'] = []
+        res['trial_data']['common_time'] = []
+        res['trial_data']['ref_raw'] = []
+        res['trial_data']['for_raw'] = []
+        res['trial_data']['ref_time_raw'] = []
+        res['trial_data']['for_time_raw'] = []
+        res['trial_data']['ref_interp_snipped'] = []
+        res['trial_data']['for_interp_snipped'] = []
+               
+
     for trial_type in trial_type_keys:
         res['all'][trial_type] = {}
         res['all'][trial_type]['lag_xcorr_ms'] = []
@@ -150,44 +156,49 @@ def score_spft_data(data,device_idx=0,description = "e.g., right hand performanc
             # print(end-start)
 
             # compute mask of data in for response vector associated with this specific trial, select time/vals
-            for_trial_mask = (for_time_all-start >= 0) & (for_time_all-end+1000<=0) 
+            for_trial_mask = (for_time_all-start >= 0) & (for_time_all-end<=0) 
             for_time = for_time_all[for_trial_mask]
             for_vals = for_vals_all[for_trial_mask]
 
             # bring ref vals into the same time space by interpolating, for direct comparison
             # then compute lag and other metrics, also shift by lag and compute metrics again
             # times are in ms, and we use the median time per interval for the conversion of lag (in timestep units) to ms
-            ref_vals_interp = np.interp(for_time,ref_time,ref_vals) #linear (piece-wise) interpolation of presented target bar positions into the actual response, now we can subtract directly
+            # return for_time,ref_time,for_vals,ref_vals
+            common_time = np.linspace(ref_time.min(),ref_time.max(),ref_time.shape[0]*2)
+            ref_vals_interp = np.interp(common_time,ref_time,ref_vals)
+            for_vals_interp = np.interp(common_time,for_time,for_vals)
             # ref_vals_interp = interp1d(ref_time,ref_vals,kind='cubic')(for_time) #does not seem to make a difference here
-            trial_lag_xcorr = lag_calc(ref_vals_interp,for_vals) #in samples
-            time_per_interval = np.mean(np.diff(for_time)) #time, in ms
-            time_std_per_interval = np.std(np.diff(for_time)) #time, in ms
+            trial_lag_xcorr = lag_calc(ref_vals_interp,for_vals_interp) #in samples
+            time_per_interval = np.mean(np.diff(common_time)) #time, in ms
+            # time_std_per_interval = np.std(np.diff(common_time)) #time, in ms
             trial_lag_xcorr_ms = trial_lag_xcorr*time_per_interval
-            for_time = for_time - for_time[0] #zero time so that our plots start at 0
-            trial_lag_ms = lag_calc_ms(for_time,ref_vals_interp,for_vals) #alternative way, not sure if this is correct in the end
+            common_time = common_time - common_time[0] #zero time so that our plots start at 0
+            trial_lag_ms = lag_calc_ms(common_time,ref_vals_interp,for_vals_interp) #alternative way, not sure if this is correct in the end
             # print(trial_lag_ms)
             
             # raw RMSE and SSE
-            trial_rmse = np.sqrt(np.mean((ref_vals_interp-for_vals)**2)) #root mean squared error
-            trial_sse = ((ref_vals_interp-for_vals)**2).sum()
-
-
+            trial_rmse = np.sqrt(np.mean((ref_vals_interp-for_vals_interp)**2)) #root mean squared error
+            trial_sse = ((ref_vals_interp-for_vals_interp)**2).sum()
+           
+            # if (block_idx == 2) and (trial_idx == 4):
+            #     return ref_vals_interp,for_vals_interp,trial_lag_xcorr,time_per_interval
+            
             # we now take the aligned vectors, snip the parts that we do not have data for, and compare to compute our lag-aligned version
             if trial_lag_xcorr >0: #we have a lag (i.e., the force comes after the reference)
-                snipped_for_vals = for_vals[trial_lag_xcorr:]
-                snipped_ref_vals = ref_vals_interp[0:trial_lag_xcorr*-1]
-                snipped_for_time = for_time[trial_lag_xcorr:]
+                snipped_for_vals = for_vals_interp[trial_lag_xcorr:]
+                snipped_ref_vals = ref_vals_interp[0:-trial_lag_xcorr]
+                # snipped_for_time = for_time[trial_lag_xcorr:]
             elif trial_lag_xcorr <0: #force preceded the reference
-                snipped_for_vals = for_vals[0:trial_lag_xcorr*-1]
-                snipped_ref_vals = ref_vals_interp[trial_lag_xcorr:]
-                snipped_for_time = for_time[0:trial_lag_xcorr*-1]
+                snipped_for_vals = for_vals_interp[0:trial_lag_xcorr]
+                snipped_ref_vals = ref_vals_interp[trial_lag_xcorr*-1:]
+                # snipped_for_time = for_time[0:trial_lag_xcorr*-1]
             elif trial_lag_xcorr == 0:
-                snipped_for_vals = for_vals
+                snipped_for_vals = for_vals_interp
                 snipped_ref_vals = ref_vals_interp
-                snipped_for_time = for_time
+                # snipped_for_time = for_time
 
             # proportion of elements used to compute RMSE and SSE
-            trial_prop_good_els = snipped_for_vals.shape[0] / for_vals.shape[0] 
+            # trial_prop_good_els = snipped_for_vals.shape[0] / ref_vals_interp.shape[0] 
             # lag-algined RMSE and SSE
             lag_aligned_trial_rmse = np.sqrt(np.mean((snipped_ref_vals-snipped_for_vals)**2)) #root mean squared error #TOOD: have someone confirm algo
             lag_aligned_trial_sse = ((snipped_ref_vals-snipped_for_vals)**2).sum()
@@ -208,6 +219,20 @@ def score_spft_data(data,device_idx=0,description = "e.g., right hand performanc
             # print(np.corrcoef(snipped_for_vals,snipped_ref_vals)[0,1])
             # print(np.corrcoef(ref_vals_interp,np.interp(for_time+trial_lag_ms, for_time,for_vals))[0,1])
             
+            if save_trial_data:
+                res['trial_data']['ref_interp'].append(ref_vals_interp)
+                res['trial_data']['for_interp'].append(for_vals_interp)
+                res['trial_data']['common_time'].append(common_time)
+
+                res['trial_data']['ref_raw'].append(ref_vals)
+                res['trial_data']['for_raw'].append(for_vals)
+                res['trial_data']['ref_time_raw'].append(ref_time)
+                res['trial_data']['for_time_raw'].append(for_time)
+
+                res['trial_data']['ref_interp_snipped'].append(snipped_ref_vals)
+                res['trial_data']['for_interp_snipped'].append(snipped_for_vals)
+                
+
             #block-wise data
             res[f'block_{block_idx}'][trial_type]['lag_xcorr_ms'].append(trial_lag_xcorr_ms)
             res[f'block_{block_idx}'][trial_type]['lag_lstsq_ms'].append(trial_lag_ms)
