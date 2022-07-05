@@ -1,0 +1,28 @@
+sessionName: TMST_test
+outputSuffix: TMST_test_out-file.yml
+interBlockInterval: 2000
+triggers: [ "5", "7" ] # optional. If missing, the task will start as soon as the "Start" button is clicked
+colours: # optional
+  leftReference: 1D8348
+  leftForce: 82E0AA
+forceProportionRange:
+  min: 0.05
+  max: 0.30
+blocks:
+  - name: "block1"
+    instructions: "Block1 starting"
+    instructionsDuration: 2000
+    feedback: "Block1 finished"
+    feedbackDuration: 2000
+    interTrialInterval: 1000
+    trials:
+      - name: "1_LRN"
+        sequenceRef: "pulse"
+      - name: "2_LRN"
+        sequenceRef: "pulse"
+
+sequences:
+  pulse:
+    frequency: 10
+    valuesLeft: 1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1]
+
