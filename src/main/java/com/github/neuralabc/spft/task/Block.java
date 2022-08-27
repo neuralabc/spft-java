@@ -1,5 +1,6 @@
 package com.github.neuralabc.spft.task;
 
+import com.github.neuralabc.spft.hardware.TriggerSender;
 import com.github.neuralabc.spft.task.config.BlockConfig;
 import com.github.neuralabc.spft.task.config.SequenceConfig;
 import com.github.neuralabc.spft.task.output.OutputSection;
@@ -21,9 +22,10 @@ public class Block {
     private final BlockConfig config;
     private final List<Trial> trials;
 
-    public Block(BlockConfig config, Map<String, SequenceConfig> sequencesPool) {
+    public Block(BlockConfig config, Map<String, SequenceConfig> sequencesPool, TriggerSender triggerSender) {
         this.config = config;
-        trials = config.getTrials().stream().map(trialConfig -> new Trial(trialConfig, sequencesPool)).collect(Collectors.toList());
+        //TODO: if you want to send triggers at the block level, keep it here in a member variable, if not just pass it to the Trial like i do here
+        trials = config.getTrials().stream().map(trialConfig -> new Trial(trialConfig, sequencesPool, triggerSender)).collect(Collectors.toList());
     }
 
     public void run(ExperimentFrame.Binding binding, Path outputFile) throws InterruptedException, IOException {

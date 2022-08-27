@@ -1,6 +1,7 @@
 package com.github.neuralabc.spft.task;
 
 import com.github.neuralabc.spft.hardware.ForceGauge;
+import com.github.neuralabc.spft.hardware.TriggerSender;
 import com.github.neuralabc.spft.hardware.TriggerTracker;
 import com.github.neuralabc.spft.task.config.SessionConfig;
 import com.github.neuralabc.spft.task.exceptions.OutputException;
@@ -31,6 +32,7 @@ public class Session implements Runnable {
     private static final double NANOS_IN_MILLI = 1e6;
     private final SessionConfig config;
     private final List<Block> blocks;
+    private final TriggerSender triggerSender;
     private ExperimentFrame.Binding uiBinding;
     private Path outputFile;
     private ForceGauge leftDevice;
@@ -51,8 +53,9 @@ public class Session implements Runnable {
             } else {
                 triggerTracker = TriggerTracker.NO_TRIGGERS;
             }
+            triggerSender = new TriggerSender();
 
-            blocks = config.getBlocks().stream().map(blockConfig -> new Block(blockConfig, config.getSequences())).collect(Collectors.toList());
+            blocks = config.getBlocks().stream().map(blockConfig -> new Block(blockConfig, config.getSequences(), triggerSender)).collect(Collectors.toList());
         } catch (FileNotFoundException ex) {
             throw new SessionException("Error opening configuration", ex);
         } catch (YAMLException ex) {
@@ -184,6 +187,8 @@ public class Session implements Runnable {
             LOG.warn("Interrupted session '{}'", config.getSessionName(), e);
         } catch (IOException e) {
             LOG.error("Problem writing output to {}", outputFile, e);
+        } finally {
+            triggerSender.stop();
         }
     }
 

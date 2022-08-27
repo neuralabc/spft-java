@@ -1,5 +1,6 @@
 package com.github.neuralabc.spft.task;
 
+import com.github.neuralabc.spft.hardware.TriggerSender;
 import com.github.neuralabc.spft.task.config.SequenceConfig;
 import com.github.neuralabc.spft.task.config.TrialConfig;
 import com.github.neuralabc.spft.task.output.OutputSection;
@@ -21,13 +22,15 @@ import java.util.concurrent.CountDownLatch;
 public class Trial {
     private static final Logger LOG = LoggerFactory.getLogger(Trial.class);
     private final TrialConfig config;
+    private final TriggerSender triggerSender;
     private final SequenceConfig sequence;
     private final CountDownLatch sync;
     private OutputSection leftReferenceOutput;
     private OutputSection rightReferenceOutput;
 
-    public Trial(TrialConfig config, Map<String, SequenceConfig> sequencesPool) {
+    public Trial(TrialConfig config, Map<String, SequenceConfig> sequencesPool, TriggerSender triggerSender) {
         this.config = config;
+        this.triggerSender = triggerSender;
         this.sequence = sequencesPool.get(config.getSequenceRef());
         if (hasLeftSequence()) {
             String sectionName = "leftReference";
@@ -56,6 +59,7 @@ public class Trial {
         timer.start();
 
         sync.await();
+        triggerSender.send();
         timer.stop();
         writeOutput(outputFile);
     }
