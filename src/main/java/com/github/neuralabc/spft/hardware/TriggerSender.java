@@ -19,17 +19,59 @@ import java.util.stream.Collectors;
  */
 public class TriggerSender implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(TriggerSender.class);
+    public static final TriggerSender DISABLED_DEVICE = new TriggerSender(DISABLED, DISABLED, null);
+    private final String name;
+    private final SerialPort commPort;
+    private Thread thread;
+    private final ExperimentFrame.Binding binding;
 
     /**
      * The name of a disabled device
      */
     public static String DISABLED = "Disabled";
 
+    public TriggerSender(String deviceName, String portName, ExperimentFrame.Binding binding) {
+        name = deviceName;
+        this.binding = binding;
+        if (!deviceName.equals(DISABLED) && !portName.equals(DISABLED)) {
+            commPort = SerialPort.getCommPort(portName);
+            output = new OutputSection(1);
+            output.addEntry("- deviceName", deviceName);
+            output.addEntry("  portName", portName);
+        } else {
+            commPort = null;
+        }
+    }
+
+    public void start() {
+        if (isEnabled()) {
+            LOG.info("Starting device {}", this);
+            thread = new Thread(this, name + "-device"); // could rename here?
+            thread.start();
+        } else {
+            LOG.trace("Not starting device {} because it's disabled", this);
+        }
+    }
+
+    public boolean isEnabled() {
+        return commPort != null;
+    }
+
     @Override
     public void run() {
+        
+        if (!commPort.openPort()) {
+            throw new TriggerSenderException(commPort.getLastErrorCode(), "Error opening port " + commPort.getSystemPortName() + " for device " + name);
+        }
     }
+    
     public void stop() {
+        if (isEnabled()) {
+            LOG.debug("Stopping device {}", this);
+            thread.interrupt();
+        }
     }
+    
     public void send() {
     }
 }

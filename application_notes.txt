@@ -1,0 +1,13 @@
+hey Chris.
+I don't think creating it inside the trial will work since the trials are all created upfront (when you load a file, a Session is created and all its blocks are created and all the trials of the block are created), so this means if you instantiate the COM port there, it will be instantiated many times and COM ports cannot be shared. i guess you could make the port itself static and make the Trial just create a cocoon TriggerSender class. but that's not my recommended way
+
+I would say create a new class in the hardware package for this (TrialTriggerSender like you suggested) and instantiate it in the session constructor since there should be only 1 device per session. you keep it in a field of Session. The only thing remaining is how to make it accessible to the trial so the trial can call the TrialTriggerSender's send(). for this you need to pass the trigger sender to the block and the block to the trials
+
+here is a rough POC patch. you should be able to apply it directly https://git-scm.com/docs/git-apply
+obviously, no idea if this actually works, but the idea is there
+
+hope it helps
+
+cheers
+
+Alejandro
