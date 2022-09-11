@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * A serial output device to output strings to indicate start/stop of trials
+ * A serial output device to write integers to serial port to indicate start/stop of trials
  */
 public class TriggerSender implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(TriggerSender.class);
@@ -24,6 +24,7 @@ public class TriggerSender implements Runnable {
     private final SerialPort commPort;
     private Thread thread;
     private final ExperimentFrame.Binding binding;
+    final int baudRate = 115200; // could make a variable as required
 
     /**
      * The name of a disabled device
@@ -35,11 +36,16 @@ public class TriggerSender implements Runnable {
         this.binding = binding;
         if (!deviceName.equals(DISABLED) && !portName.equals(DISABLED)) {
             commPort = SerialPort.getCommPort(portName);
-            output = new OutputSection(1);
-            output.addEntry("- deviceName", deviceName);
-            output.addEntry("  portName", portName);
+            // output = new OutputSection(1); //this could be used to write to the output xml file if you like
+            // output.addEntry("- deviceName", deviceName);
+            // output.addEntry("  portName", portName);
         } else {
             commPort = null;
+        commPort.setParity(SerialPort.NO_PARITY);
+        commPort.setNumStopBits(SerialPort.ONE_STOP_BIT);
+        commPort.setNumDataBits(8);
+        // commPort.addDataListener(this);
+        commPort.setBaudRate(baudRate);
         }
     }
 
@@ -72,6 +78,8 @@ public class TriggerSender implements Runnable {
         }
     }
     
-    public void send() {
+    //immediately write a byte to the serial port
+    public void send(byte b) {
+        commPort.writeBytes(new byte[]{b}, 1);
     }
 }

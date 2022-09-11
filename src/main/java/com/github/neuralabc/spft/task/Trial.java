@@ -59,7 +59,7 @@ public class Trial {
         timer.start();
 
         sync.await();
-        triggerSender.send();
+        triggerSender.send((byte) 1);
         timer.stop();
         writeOutput(outputFile);
     }
