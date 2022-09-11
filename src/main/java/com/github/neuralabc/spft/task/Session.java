@@ -32,12 +32,12 @@ public class Session implements Runnable {
     private static final double NANOS_IN_MILLI = 1e6;
     private final SessionConfig config;
     private final List<Block> blocks;
-    private final TriggerSender triggerSender;
     private ExperimentFrame.Binding uiBinding;
     private Path outputFile;
     private ForceGauge leftDevice;
     private ForceGauge rightDevice;
     private final TriggerTracker triggerTracker;
+    private TriggerSender triggerSender;
     private Thread thread;
 
     public Session(File selectedFile) {
@@ -53,8 +53,7 @@ public class Session implements Runnable {
             } else {
                 triggerTracker = TriggerTracker.NO_TRIGGERS;
             }
-            triggerSender = new TriggerSender();
-
+            
             blocks = config.getBlocks().stream().map(blockConfig -> new Block(blockConfig, config.getSequences(), triggerSender)).collect(Collectors.toList());
         } catch (FileNotFoundException ex) {
             throw new SessionException("Error opening configuration", ex);
@@ -77,6 +76,10 @@ public class Session implements Runnable {
         }
         if (!leftDevice.isEnabled() && !rightDevice.isEnabled()) {
             LOG.warn("All devices are disabled. There will be no force data");
+        }
+        triggerSender = new TriggerSender("triggerDevice",sessionParameters.usedTriggerPort(),binding);
+        if (!triggerSender.isEnabled()) {
+            LOG.warn("Trigger device is not present. No triggering to external device.");
         }
         this.outputFile = Path.of(sessionParameters.outputFile());
         writeSessionMetadata(sessionParameters);
@@ -149,6 +152,7 @@ public class Session implements Runnable {
             triggerTracker.waitNext();
             leftDevice.start();
             rightDevice.start();
+            triggerSender.start();
 
             for (int currentBlock = 0; currentBlock < config.getBlocks().size(); currentBlock++) {
                 Block nextBlock = blocks.get(currentBlock);
@@ -214,6 +218,6 @@ public class Session implements Runnable {
     }
 
     public record SessionParameters(String participantId, String outputFile, List<String> forceDevicesPorts,
-                                    int maximumLeftContraction, int maximumRightContraction) {
+                                    int maximumLeftContraction, int maximumRightContraction, String usedTriggerPort) {
     }
 }

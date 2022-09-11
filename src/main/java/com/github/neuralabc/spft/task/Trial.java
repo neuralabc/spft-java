@@ -56,10 +56,15 @@ public class Trial {
         Timer timer = new Timer(delay, presentation);
         timer.setInitialDelay(0);
         timer.setRepeats(true);
+        if (!(this.triggerSender == null)){
+            triggerSender.send((byte) 1);
+        }
         timer.start();
 
         sync.await();
-        triggerSender.send((byte) 1);
+        if (!(this.triggerSender == null)){
+            triggerSender.send((byte) 1);
+        }
         timer.stop();
         writeOutput(outputFile);
     }

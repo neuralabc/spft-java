@@ -213,10 +213,11 @@ public class ControlContent {
             String triggerItem = (String) triggerDevice.getSelectedItem();
             prefs.put(LAST_TRIGGER_DEVICE, triggerItem);
 
-            List<String> usedDevices = List.of(leftItem, rightItem, triggerItem);
+            List<String> usedDevices = List.of(leftItem, rightItem);
+            String usedTrigger = triggerItem;
             int maximumLeftContraction = maximumLeftContractionValue.getText().isEmpty() ? -1 : Integer.parseInt(maximumLeftContractionValue.getText());
             int maximumRightContraction = maximumRightContractionValue.getText().isEmpty() ? -1 : Integer.parseInt(maximumRightContractionValue.getText());
-            Session.SessionParameters sessionParameters = new Session.SessionParameters(participantIdValue.getText(), outputFileValue.getText(), usedDevices, maximumLeftContraction, maximumRightContraction);
+            Session.SessionParameters sessionParameters = new Session.SessionParameters(participantIdValue.getText(), outputFileValue.getText(), usedDevices, maximumLeftContraction, maximumRightContraction, usedTrigger);
             currentSession.start(sessionParameters, experimentFrameBinding);
 
             startButton.setEnabled(false);

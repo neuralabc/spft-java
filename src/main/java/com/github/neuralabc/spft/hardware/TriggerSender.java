@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
  */
 public class TriggerSender implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(TriggerSender.class);
-    public static final TriggerSender DISABLED_DEVICE = new TriggerSender(DISABLED, DISABLED, null);
     private final String name;
     private final SerialPort commPort;
     private Thread thread;
@@ -30,7 +29,8 @@ public class TriggerSender implements Runnable {
      * The name of a disabled device
      */
     public static String DISABLED = "Disabled";
-
+    public static final TriggerSender DISABLED_DEVICE = new TriggerSender(DISABLED, DISABLED, null);
+  
     public TriggerSender(String deviceName, String portName, ExperimentFrame.Binding binding) {
         name = deviceName;
         this.binding = binding;
@@ -39,13 +39,13 @@ public class TriggerSender implements Runnable {
             // output = new OutputSection(1); //this could be used to write to the output xml file if you like
             // output.addEntry("- deviceName", deviceName);
             // output.addEntry("  portName", portName);
+            commPort.setParity(SerialPort.NO_PARITY);
+            commPort.setNumStopBits(SerialPort.ONE_STOP_BIT);
+            commPort.setNumDataBits(8);
+            // commPort.addDataListener(this);
+            commPort.setBaudRate(baudRate);
         } else {
             commPort = null;
-        commPort.setParity(SerialPort.NO_PARITY);
-        commPort.setNumStopBits(SerialPort.ONE_STOP_BIT);
-        commPort.setNumDataBits(8);
-        // commPort.addDataListener(this);
-        commPort.setBaudRate(baudRate);
         }
     }
 
@@ -66,9 +66,9 @@ public class TriggerSender implements Runnable {
     @Override
     public void run() {
         
-        if (!commPort.openPort()) {
-            throw new TriggerSenderException(commPort.getLastErrorCode(), "Error opening port " + commPort.getSystemPortName() + " for device " + name);
-        }
+        // if (!commPort.openPort()) {
+        //     throw new TriggerSenderException(commPort.getLastErrorCode(), "Error opening port " + commPort.getSystemPortName() + " for device " + name);
+        // }
     }
     
     public void stop() {
