@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -21,6 +22,7 @@ public class TriggerSender implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(TriggerSender.class);
     private final String name;
     private final SerialPort commPort;
+    private OutputStream serialOut;
     private Thread thread;
     private final ExperimentFrame.Binding binding;
     final int baudRate = 115200; // could make a variable as required
@@ -47,13 +49,21 @@ public class TriggerSender implements Runnable {
         } else {
             commPort = null;
         }
+        if (this.commPort != null) {
+            this.commPort.openPort();
+			serialOut = this.commPort.getOutputStream();
+            //test write
+            send((byte) 1);
+        }
     }
 
     public void start() {
         if (isEnabled()) {
-            LOG.info("Starting device {}", this);
-            thread = new Thread(this, name + "-device"); // could rename here?
+            LOG.info("Starting trigger device {}", this);
+            thread = new Thread(this, name + "-triggerDevice"); // could rename here?
             thread.start();
+            this.send((byte) 1);
+            LOG.info("Trigger device successfully started");
         } else {
             LOG.trace("Not starting device {} because it's disabled", this);
         }
@@ -65,10 +75,16 @@ public class TriggerSender implements Runnable {
 
     @Override
     public void run() {
-        
-        // if (!commPort.openPort()) {
-        //     throw new TriggerSenderException(commPort.getLastErrorCode(), "Error opening port " + commPort.getSystemPortName() + " for device " + name);
-        // }
+        try {
+            // Displaying the thread that is running
+            System.out.println(
+                "Thread " + thread.currentThread().getId()
+                + " is running");
+        }
+        catch (Exception e) {
+            // Throwing an exception
+            System.out.println("Exception is caught");
+        }
     }
     
     public void stop() {
@@ -80,6 +96,6 @@ public class TriggerSender implements Runnable {
     
     //immediately write a byte to the serial port
     public void send(byte b) {
-        commPort.writeBytes(new byte[]{b}, 1);
+        this.commPort.writeBytes(new byte[]{b}, 1);
     }
 }

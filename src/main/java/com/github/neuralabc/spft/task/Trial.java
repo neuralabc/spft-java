@@ -56,7 +56,9 @@ public class Trial {
         Timer timer = new Timer(delay, presentation);
         timer.setInitialDelay(0);
         timer.setRepeats(true);
+        triggerSender.send((byte) 1);
         if (!(this.triggerSender == null)){
+            LOG.info("\t\tAttempting to send start of trial trigger");
             triggerSender.send((byte) 1);
         }
         timer.start();

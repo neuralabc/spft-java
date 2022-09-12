@@ -80,6 +80,9 @@ public class Session implements Runnable {
         triggerSender = new TriggerSender("triggerDevice",sessionParameters.usedTriggerPort(),binding);
         if (!triggerSender.isEnabled()) {
             LOG.warn("Trigger device is not present. No triggering to external device.");
+        } else {
+            LOG.info("Trigger device is present and available.");
+            LOG.info("\t{}",triggerSender);
         }
         this.outputFile = Path.of(sessionParameters.outputFile());
         writeSessionMetadata(sessionParameters);
@@ -153,7 +156,7 @@ public class Session implements Runnable {
             leftDevice.start();
             rightDevice.start();
             triggerSender.start();
-
+            triggerSender.send((byte) 1); //TODO REMOVE THIS XXX XXX
             for (int currentBlock = 0; currentBlock < config.getBlocks().size(); currentBlock++) {
                 Block nextBlock = blocks.get(currentBlock);
 
