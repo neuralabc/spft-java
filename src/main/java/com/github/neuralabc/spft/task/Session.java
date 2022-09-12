@@ -199,6 +199,7 @@ public class Session implements Runnable {
             LOG.error("Problem writing output to {}", outputFile, e);
         } finally {
             triggerSender.stop();
+            LOG.info("Trigger Sender stopped successfully.");
         }
     }
 
