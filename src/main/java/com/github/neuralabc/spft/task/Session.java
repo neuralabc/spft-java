@@ -53,7 +53,7 @@ public class Session implements Runnable {
             } else {
                 triggerTracker = TriggerTracker.NO_TRIGGERS;
             }
-            
+            triggerSender = new TriggerSender("triggerDevice","Disabled"); // create a dummy triggerSender that is disabled, before we know what port to look in
             blocks = config.getBlocks().stream().map(blockConfig -> new Block(blockConfig, config.getSequences(), triggerSender)).collect(Collectors.toList());
         } catch (FileNotFoundException ex) {
             throw new SessionException("Error opening configuration", ex);
@@ -77,7 +77,8 @@ public class Session implements Runnable {
         if (!leftDevice.isEnabled() && !rightDevice.isEnabled()) {
             LOG.warn("All devices are disabled. There will be no force data");
         }
-        triggerSender = new TriggerSender("triggerDevice",sessionParameters.usedTriggerPort(),binding);
+        // triggerSender = new TriggerSender("triggerDevice",sessionParameters.usedTriggerPort(),binding);
+        triggerSender.setPort(sessionParameters.usedTriggerPort()); // update the port for the triggerSender
         if (!triggerSender.isEnabled()) {
             LOG.warn("Trigger device is not present. No triggering to external device.");
         } else {
@@ -156,7 +157,9 @@ public class Session implements Runnable {
             leftDevice.start();
             rightDevice.start();
             triggerSender.start();
+            // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX //
             triggerSender.send((byte) 1); //TODO REMOVE THIS XXX XXX
+            // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX //
             for (int currentBlock = 0; currentBlock < config.getBlocks().size(); currentBlock++) {
                 Block nextBlock = blocks.get(currentBlock);
 

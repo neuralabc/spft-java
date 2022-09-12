@@ -3,7 +3,7 @@ package com.github.neuralabc.spft.hardware;
 import com.fazecast.jSerialComm.SerialPort;
 import com.github.neuralabc.spft.task.exceptions.ForceGaugeException;
 import com.github.neuralabc.spft.task.output.OutputSection;
-import com.github.neuralabc.spft.ui.ExperimentFrame;
+// import com.github.neuralabc.spft.ui.ExperimentFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,21 +21,21 @@ import java.util.stream.Collectors;
 public class TriggerSender implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(TriggerSender.class);
     private final String name;
-    private final SerialPort commPort;
+    private SerialPort commPort;
     private OutputStream serialOut;
     private Thread thread;
-    private final ExperimentFrame.Binding binding;
+    // private final ExperimentFrame.Binding binding;
     final int baudRate = 115200; // could make a variable as required
 
     /**
      * The name of a disabled device
      */
     public static String DISABLED = "Disabled";
-    public static final TriggerSender DISABLED_DEVICE = new TriggerSender(DISABLED, DISABLED, null);
+    public static final TriggerSender DISABLED_DEVICE = new TriggerSender(DISABLED, DISABLED);
   
-    public TriggerSender(String deviceName, String portName, ExperimentFrame.Binding binding) {
+    public TriggerSender(String deviceName, String portName) {
         name = deviceName;
-        this.binding = binding;
+        // this.binding = binding;
         if (!deviceName.equals(DISABLED) && !portName.equals(DISABLED)) {
             commPort = SerialPort.getCommPort(portName);
             // output = new OutputSection(1); //this could be used to write to the output xml file if you like
@@ -52,11 +52,33 @@ public class TriggerSender implements Runnable {
         if (this.commPort != null) {
             this.commPort.openPort();
 			serialOut = this.commPort.getOutputStream();
-            //test write
-            send((byte) 1);
+            // //test write
+            // send((byte) 1);
         }
     }
 
+    //created this function to be able to set portName separately from class instantiation
+    public void setPort(String portName){
+        if (!portName.equals(DISABLED)) {
+            commPort = SerialPort.getCommPort(portName);
+            // output = new OutputSection(1); //this could be used to write to the output xml file if you like
+            // output.addEntry("- deviceName", deviceName);
+            // output.addEntry("  portName", portName);
+            commPort.setParity(SerialPort.NO_PARITY);
+            commPort.setNumStopBits(SerialPort.ONE_STOP_BIT);
+            commPort.setNumDataBits(8);
+            // commPort.addDataListener(this);
+            commPort.setBaudRate(baudRate);
+        } else {
+            commPort = null;
+        }
+        if (this.commPort != null) {
+            this.commPort.openPort();
+			serialOut = this.commPort.getOutputStream();
+            // //test write
+            // send((byte) 1);
+        }
+    }
     public void start() {
         if (isEnabled()) {
             LOG.info("Starting trigger device {}", this);
@@ -97,5 +119,6 @@ public class TriggerSender implements Runnable {
     //immediately write a byte to the serial port
     public void send(byte b) {
         this.commPort.writeBytes(new byte[]{b}, 1);
+        LOG.info("-- Wrote to serial port {}",(byte) b);
     }
 }
