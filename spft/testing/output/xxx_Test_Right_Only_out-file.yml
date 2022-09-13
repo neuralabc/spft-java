@@ -1,5 +1,5 @@
 sessionName: Test_Right_Only
-startTime: 2022-09-13T19:15:17.633392580Z
+startTime: 2022-09-13T19:26:59.415658138Z
 configurationFile: /home/stechr/Documents/code/spft-java/spft/testing/2022_06_test_right_only/SPFT_LAB_data.yml
 configurationChecksum: 36179f0ce9ffca1550bedd43bc4c3a24
 participantId: xxx
@@ -8,6 +8,6 @@ forceProportionRange:
   max: 0.3
 blocks: 
   - blockName: block1
-    startTimestamp: 552410184.36
+    startTimestamp: 553111270.89
     trials: 
     - trialName: 1_SMP

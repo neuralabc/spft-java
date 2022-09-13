@@ -132,8 +132,8 @@ public class TriggerSender implements Runnable {
     //     LOG.info("-- Wrote to serial port {}",(byte) b);
     // }
     public void send() {
-        byte msg = 1;
-        this.commPort.writeBytes(new byte[]{msg}, 1);
+        byte msg[] = {1};
+        this.commPort.writeBytes(msg, msg.length);
         
         LOG.info("-- Wrote to serial port {}",msg);
     }
