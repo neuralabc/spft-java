@@ -8,11 +8,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.OutputStream;
+
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+// this is the python version that works just fine
+// {'baudrate': 115200,
+//  'bytesize': 8,
+//  'parity': 'N',
+//  'stopbits': 1,
+//  'xonxoff': False,
+//  'dsrdtr': False,
+//  'rtscts': False,
+//  'timeout': None,
+//  'write_timeout': None,
+//  'inter_byte_timeout': None}
 
 
 /**
@@ -22,10 +34,9 @@ public class TriggerSender implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(TriggerSender.class);
     private final String name;
     private SerialPort commPort;
-    private OutputStream serialOut;
     private Thread thread;
     // private final ExperimentFrame.Binding binding;
-    final int baudRate = 115200; // could make a variable as required
+    final int baudRate = 115200; // could make a variable as required, but this is the baudrate for the arduino mega
 
     /**
      * The name of a disabled device
@@ -51,7 +62,6 @@ public class TriggerSender implements Runnable {
         }
         if (this.commPort != null) {
             this.commPort.openPort();
-			serialOut = this.commPort.getOutputStream();
             // //test write
             // send((byte) 1);
         }
@@ -64,21 +74,19 @@ public class TriggerSender implements Runnable {
             // output = new OutputSection(1); //this could be used to write to the output xml file if you like
             // output.addEntry("- deviceName", deviceName);
             // output.addEntry("  portName", portName);
-            commPort.setParity(SerialPort.NO_PARITY);
-            commPort.setNumStopBits(SerialPort.ONE_STOP_BIT);
+            commPort.setParity(SerialPort.NO_PARITY); //this should be the default already  
+            commPort.setNumStopBits(SerialPort.ONE_STOP_BIT); // this should be the default already
             commPort.setNumDataBits(8);
             // commPort.addDataListener(this);
             commPort.setBaudRate(baudRate);
-        } else {
-            commPort = null;
-        }
+        } 
         if (this.commPort != null) {
             this.commPort.openPort();
-			serialOut = this.commPort.getOutputStream();
             // //test write
             // send((byte) 1);
         }
     }
+
     public void start() {
         if (isEnabled()) {
             LOG.info("Starting trigger device {}", this);
@@ -119,6 +127,7 @@ public class TriggerSender implements Runnable {
     //immediately write a byte to the serial port
     public void send(byte b) {
         this.commPort.writeBytes(new byte[]{b}, 1);
+        
         LOG.info("-- Wrote to serial port {}",(byte) b);
     }
 }

@@ -70,3 +70,4 @@ stage/
 spft/output/xxx_Test_Right_Only_out-file.yml
 spft/__pycache__/spft.cpython-39.pyc
 spft/__pycache__/spft.cpython-39.pyc
+spft/testing/output/xxx_Test_Right_Only_out-file.yml

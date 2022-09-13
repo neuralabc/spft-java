@@ -53,7 +53,7 @@ public class Session implements Runnable {
             } else {
                 triggerTracker = TriggerTracker.NO_TRIGGERS;
             }
-            triggerSender = new TriggerSender("triggerDevice","Disabled"); // create a dummy triggerSender that is disabled, before we know what port to look in
+            triggerSender = new TriggerSender("triggerDevice","Disabled"); // create a dummy instance of triggerSender that is disabled, before we know what port to look in
             blocks = config.getBlocks().stream().map(blockConfig -> new Block(blockConfig, config.getSequences(), triggerSender)).collect(Collectors.toList());
         } catch (FileNotFoundException ex) {
             throw new SessionException("Error opening configuration", ex);
