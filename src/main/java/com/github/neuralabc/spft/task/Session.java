@@ -157,9 +157,6 @@ public class Session implements Runnable {
             leftDevice.start();
             rightDevice.start();
             triggerSender.start();
-            // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX //
-            triggerSender.send((byte) 1); //TODO REMOVE THIS XXX XXX
-            // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX //
             for (int currentBlock = 0; currentBlock < config.getBlocks().size(); currentBlock++) {
                 Block nextBlock = blocks.get(currentBlock);
 

@@ -82,6 +82,7 @@ public class TriggerSender implements Runnable {
         } 
         if (this.commPort != null) {
             this.commPort.openPort();
+            LOG.info("{}",this.commPort.getBaudRate());
             // //test write
             // send((byte) 1);
         }
@@ -92,7 +93,7 @@ public class TriggerSender implements Runnable {
             LOG.info("Starting trigger device {}", this);
             thread = new Thread(this, name + "-triggerDevice"); // could rename here?
             thread.start();
-            this.send((byte) 1);
+            this.send();
             LOG.info("Trigger device successfully started");
         } else {
             LOG.trace("Not starting device {} because it's disabled", this);
@@ -125,9 +126,21 @@ public class TriggerSender implements Runnable {
     }
     
     //immediately write a byte to the serial port
-    public void send(byte b) {
-        this.commPort.writeBytes(new byte[]{b}, 1);
+    // public void send(byte b) {
+    //     this.commPort.writeBytes(new byte[]{b}, 1);
         
-        LOG.info("-- Wrote to serial port {}",(byte) b);
+    //     LOG.info("-- Wrote to serial port {}",(byte) b);
+    // }
+    public void send() {
+        byte msg = 1;
+        this.commPort.writeBytes(new byte[]{msg}, 1);
+        
+        LOG.info("-- Wrote to serial port {}",msg);
     }
+    //immediately write a byte to the serial port
+    // public void send(byte[] b) {
+    //     this.commPort.writeBytes(b, b.length);
+        
+    //     LOG.info("-- Wrote to serial port {}",(byte) b);
+    // }
 }
