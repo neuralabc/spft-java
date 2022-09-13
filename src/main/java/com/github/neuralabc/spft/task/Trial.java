@@ -59,7 +59,7 @@ public class Trial {
 
         if (!(triggerSender == null)){
             LOG.info("\t\tAttempting to send start of trial trigger");
-            triggerSender.send((byte) 1);
+            triggerSender.send();
         }
 
         timer.start();
@@ -67,7 +67,7 @@ public class Trial {
         sync.await();
 
         if (!(triggerSender == null)){
-            triggerSender.send((byte) 1);
+            triggerSender.send();
         }
         timer.stop();
         writeOutput(outputFile);
