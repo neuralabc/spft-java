@@ -8,6 +8,12 @@ This task is modeled on previous work, including the following (most relevant) r
 - https://pubmed.ncbi.nlm.nih.gov/34704176/
 - https://pubmed.ncbi.nlm.nih.gov/33885965/
 
+### Integration (triggering)
+- The session can be triggered to start by keypress values defined in the [configuration file](#configuration-file)
+- Each trial start/stop can also be synchronized with external devices through serial port triggering (or emulated serial port) 
+  - a single trigger message is sent to the external device (e.g, arduino) for both start and stop: `byte[] TRIGGER_MESSAGE = {'1','\n'}`
+  - the generated [output file](#output) will contain a triggersOut field with times and values indicating start (`'0'`) and stop (`'1'`) 
+
 ## Build
 The application is built with Maven 3
 
