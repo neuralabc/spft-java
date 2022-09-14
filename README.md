@@ -117,7 +117,8 @@ relative to the other times in the session
 `blocks.trials`: A list of the presentation values and their actual timestamps using a CPU clock  
 `blocks.endTimestamp`: The end of the block using a CPU clock  
 `devices`: A list of hardware force devices with each element containing the full stream of data starting when one of the triggers is received  
-`triggers`: A lif of triggers received throughout the session
+`triggers`: A list of triggers received throughout the session
+`triggersOut`: If present, indicates serial out hardware device and port name for triggers sent to arduino. Contains the times and values for each trigger
 
 ## Implementation notes
 ### Force bar height
