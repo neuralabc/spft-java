@@ -28,7 +28,7 @@ This will generate a runnable jar in the `target` folder
 ## Run
 This application uses Java 17. Make sure it is installed before running the application.
 
-- if you are running this on a linux system, you will require explicit access to the incoming data from ports {`/dev/ttyACM0`; `/dev/ttyACM1`} and to send via serial trigger if desired {`/dev/ttyACM2`}. This can be granted by the _system administrator_ providing the user with access to the `dialout` group with `sudo usermod -a -G dialout theUserNameHere`
+- if you are running this on a linux system, you will require explicit access to the incoming data from ports {`/dev/ttyACM0`; `/dev/ttyACM1`} and to send triggers out from the program via the serial port if desired {`/dev/ttyACM2`}. This can be granted by the _system administrator_ providing the user with access to the `dialout` group with `sudo usermod -a -G dialout theUserNameHere`
 - it is good practice to __always__ plug the devices in to the USB ports in the same order and attach the trigger output device last to ensure that you are always aware of which device is which.
 
 ### Installing Java17 (linux)
