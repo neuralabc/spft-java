@@ -52,6 +52,7 @@ public class TriggerSender implements Runnable {
      */
     public static String DISABLED = "Disabled";
     public static final TriggerSender DISABLED_DEVICE = new TriggerSender(DISABLED, DISABLED);
+    private static final byte[] TRIGGER_MESSAGE = {'1','\n'};
   
     public TriggerSender(String deviceName, String portName) {
         name = deviceName;
@@ -130,8 +131,9 @@ public class TriggerSender implements Runnable {
     }
     
     public void send() {
-        byte[] msg = {'1','\n'};
-        this.commPort.writeBytes(msg, msg.length);
+        if (this.isEnabled()){
+            this.commPort.writeBytes(TRIGGER_MESSAGE, TRIGGER_MESSAGE.length);    
+        }
         // LOG.info("-- Wrote to serial port {}",msg);
     }
 
