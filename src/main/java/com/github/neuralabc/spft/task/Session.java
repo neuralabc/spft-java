@@ -81,6 +81,7 @@ public class Session implements Runnable {
         triggerSender.setPort(sessionParameters.usedTriggerPort()); // update the port for the triggerSender
         if (!triggerSender.isEnabled()) {
             LOG.warn("Trigger device is not present. No triggering to external device.");
+            // triggerSender = null;
         } else {
             LOG.info("Trigger device is present and available.");
             LOG.info("\t{}",triggerSender);
