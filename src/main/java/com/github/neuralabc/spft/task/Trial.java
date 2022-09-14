@@ -57,13 +57,13 @@ public class Trial {
         timer.setInitialDelay(0);
         timer.setRepeats(true);
 
-        triggerSender.send(); // trigger to indicate start of trial
+        triggerSender.sendStart(); // trigger to indicate start of trial
 
         timer.start();
 
         sync.await();
 
-        triggerSender.send(); // trigger to indicate stop (no different from start trigger)
+        triggerSender.sendStop(); // trigger to indicate stop (no different from start trigger)
         
         timer.stop();
         writeOutput(outputFile);

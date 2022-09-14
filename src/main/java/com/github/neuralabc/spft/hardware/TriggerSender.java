@@ -48,6 +48,8 @@ public class TriggerSender implements Runnable {
     public static String DISABLED = "Disabled";
     public static final TriggerSender DISABLED_DEVICE = new TriggerSender(DISABLED, DISABLED);
     private static final byte[] TRIGGER_MESSAGE = {'1','\n'};
+    private static final char START_TRIAL_TRIGGER = '0';
+    private static final char STOP_TRIAL_TRIGGER = '1';
     private static final int baudRate = 115200; // could make a variable as required, but this is the baudrate for the arduino mega
 
 
@@ -131,14 +133,18 @@ public class TriggerSender implements Runnable {
         }
     }
     
-    public void send() {
+    public void sendStart() {
         if (this.isEnabled()){
             this.commPort.writeBytes(TRIGGER_MESSAGE, TRIGGER_MESSAGE.length);
-            output.addSample('1');
+            output.addSample(START_TRIAL_TRIGGER);
         }
-        // LOG.info("-- Wrote to serial port {}",msg);
     }
-
+    public void sendStop() {
+        if (this.isEnabled()){
+            this.commPort.writeBytes(TRIGGER_MESSAGE, TRIGGER_MESSAGE.length);
+            output.addSample(STOP_TRIAL_TRIGGER);
+        }
+    }
     public void writeOutput(Path outputFile) throws IOException {
         if (isEnabled()) {
             LOG.debug("Writing sent trigger times from {}", this);
