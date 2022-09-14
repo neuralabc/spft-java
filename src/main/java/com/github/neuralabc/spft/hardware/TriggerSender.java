@@ -14,6 +14,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+//*
+// #after mamba install pyserial
+// import serial
+// port = "/dev/ttyACM0"
+// rate = 115200
+// s1 = serial.Serial(port,rate)
+// s1.flushInput()
+// s1.write(str.encode(str(1)+'/n'))
+
 // this is the python version that works just fine
 // {'baudrate': 115200,
 //  'bytesize': 8,
@@ -77,14 +86,10 @@ public class TriggerSender implements Runnable {
             commPort.setParity(SerialPort.NO_PARITY); //this should be the default already  
             commPort.setNumStopBits(SerialPort.ONE_STOP_BIT); // this should be the default already
             commPort.setNumDataBits(8);
-            // commPort.addDataListener(this);
             commPort.setBaudRate(baudRate);
         } 
         if (this.commPort != null) {
             this.commPort.openPort();
-            LOG.info("{}",this.commPort.getBaudRate());
-            // //test write
-            // send((byte) 1);
         }
     }
 
@@ -93,7 +98,6 @@ public class TriggerSender implements Runnable {
             LOG.info("Starting trigger device {}", this);
             thread = new Thread(this, name + "-triggerDevice"); // could rename here?
             thread.start();
-            this.send();
             LOG.info("Trigger device successfully started");
         } else {
             LOG.trace("Not starting device {} because it's disabled", this);
@@ -125,22 +129,10 @@ public class TriggerSender implements Runnable {
         }
     }
     
-    //immediately write a byte to the serial port
-    // public void send(byte b) {
-    //     this.commPort.writeBytes(new byte[]{b}, 1);
-        
-    //     LOG.info("-- Wrote to serial port {}",(byte) b);
-    // }
     public void send() {
-        byte msg[] = {1};
+        byte[] msg = {'1','\n'};
         this.commPort.writeBytes(msg, msg.length);
-        
-        LOG.info("-- Wrote to serial port {}",msg);
+        // LOG.info("-- Wrote to serial port {}",msg);
     }
-    //immediately write a byte to the serial port
-    // public void send(byte[] b) {
-    //     this.commPort.writeBytes(b, b.length);
-        
-    //     LOG.info("-- Wrote to serial port {}",(byte) b);
-    // }
+
 }
