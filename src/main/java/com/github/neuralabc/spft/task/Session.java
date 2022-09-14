@@ -190,6 +190,13 @@ public class Session implements Runnable {
                 triggerTracker.writeOutput(outputFile);
             }
 
+            if (triggerSender.isEnabled()){ //external triggers sent by this program
+                OutputSection triggersOut = new OutputSection();
+                triggersOut.addEntry("triggersOut", "");
+                triggersOut.write(outputFile);
+                triggerSender.writeOutput(outputFile);
+            }
+
             LOG.info("Session '{}' ended successfully", getConfig().getSessionName());
         } catch (InterruptedException e) {
             LOG.warn("Interrupted session '{}'", config.getSessionName(), e);

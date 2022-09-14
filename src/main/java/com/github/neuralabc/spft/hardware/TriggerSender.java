@@ -42,26 +42,20 @@ import java.util.stream.Collectors;
 public class TriggerSender implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(TriggerSender.class);
     private final String name;
+    private final OutputSection output;
     private SerialPort commPort;
     private Thread thread;
-    // private final ExperimentFrame.Binding binding;
-    final int baudRate = 115200; // could make a variable as required, but this is the baudrate for the arduino mega
-
-    /**
-     * The name of a disabled device
-     */
     public static String DISABLED = "Disabled";
     public static final TriggerSender DISABLED_DEVICE = new TriggerSender(DISABLED, DISABLED);
     private static final byte[] TRIGGER_MESSAGE = {'1','\n'};
-  
+    private static final int baudRate = 115200; // could make a variable as required, but this is the baudrate for the arduino mega
+
+
     public TriggerSender(String deviceName, String portName) {
-        name = deviceName;
+        this.name = deviceName;
         // this.binding = binding;
         if (!deviceName.equals(DISABLED) && !portName.equals(DISABLED)) {
             commPort = SerialPort.getCommPort(portName);
-            // output = new OutputSection(1); //this could be used to write to the output xml file if you like
-            // output.addEntry("- deviceName", deviceName);
-            // output.addEntry("  portName", portName);
             commPort.setParity(SerialPort.NO_PARITY);
             commPort.setNumStopBits(SerialPort.ONE_STOP_BIT);
             commPort.setNumDataBits(8);
@@ -75,6 +69,7 @@ public class TriggerSender implements Runnable {
             // //test write
             // send((byte) 1);
         }
+        output = new OutputSection(1);
     }
 
     //created this function to be able to set portName separately from class instantiation
@@ -92,6 +87,12 @@ public class TriggerSender implements Runnable {
         if (this.commPort != null) {
             this.commPort.openPort();
         }
+        //** This is defined in setPort b/c before this point the portName had not been set */
+        // output = new OutputSection(1); //this could be used to write to the output xml file if you like
+        output.addEntry("- deviceName", this.name);
+        output.addEntry("  portName", portName);
+        //** */
+        
     }
 
     public void start() {
@@ -132,9 +133,16 @@ public class TriggerSender implements Runnable {
     
     public void send() {
         if (this.isEnabled()){
-            this.commPort.writeBytes(TRIGGER_MESSAGE, TRIGGER_MESSAGE.length);    
+            this.commPort.writeBytes(TRIGGER_MESSAGE, TRIGGER_MESSAGE.length);
+            output.addSample('1');
         }
         // LOG.info("-- Wrote to serial port {}",msg);
     }
 
+    public void writeOutput(Path outputFile) throws IOException {
+        if (isEnabled()) {
+            LOG.debug("Writing sent trigger times from {}", this);
+            output.write(outputFile);
+        }
+    }
 }
