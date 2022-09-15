@@ -79,7 +79,7 @@ If the parameter is missing, the session will start as soon as the experimenter 
 `blocks.trials`: A list of references to the sequences that define each trial. The referenced sequence has to exist in
 the top-level pool of sequences  
 `sequences`: A pool of sequences that can be referenced in blocks' trials. Each sequence has the values for the reference
-bar and a frequency in Hz that defines the speed of the sequence 
+bar and a frequency in milliseconds that defines the speed of the sequence. Each value of the sequence is displayed for this length of time. 
 
 ### Runtime flags
 Runtime flags are JVM System Properties that control some behaviour of the application
