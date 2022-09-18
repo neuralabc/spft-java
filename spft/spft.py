@@ -163,7 +163,7 @@ def score_spft_data(data,device_idx=0,description = "e.g., right hand performanc
 
             # bring ref vals into the same time space by interpolating, for direct comparison
             # then compute lag and other metrics, also shift by lag and compute metrics again
-            # times are in ms, and we use the median time per interval for the conversion of lag (in timestep units) to ms
+            # times are in ms, and we use the mean time per interval for the conversion of lag (in timestep units) to ms
             # return for_time,ref_time,for_vals,ref_vals
             common_time = np.linspace(ref_time.min(),ref_time.max(),ref_time.shape[0]*2)
             ref_vals_interp = np.interp(common_time,ref_time,ref_vals)
