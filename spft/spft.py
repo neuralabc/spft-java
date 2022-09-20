@@ -44,6 +44,18 @@ def compute_normalized_force_response(device_force_values, MVC, forceRangeMin=0.
         norm_resp[norm_resp>clamp[1]] = clamp[1]
     return norm_resp
 
+def compute_dtw_metrics(t_ref,t_for):
+    """
+    Perform dynamic time warping with tslearn to compute shortest path and distance score (euclidean) between two timeseries
+    Under ideal conditions where the entire timeseries is uniformly shifted in time, mean/median path difference (vs diagonal)
+    is equivalent to the number of samples shifted in time (i.e., lag) mean/median lags are **EXPERIMENTAL**
+    """
+    from tslearn.metrics import dtw_path
+    path, distance = dtw_path(t_ref,t_for,)
+    _diff = np.diff(path,axis=1)
+    return {"path":path, "distance":distance,"mean_lag":np.mean(_diff),"median_lag":np.median(_diff)}
+
+
 def lag_calc(yy,yy_shifted):
     """
     Calculate lag, in discrete samples with cross-correlation. I.e., max resolution is one sample (1/freq)
@@ -124,7 +136,7 @@ def score_spft_data(data,device_idx=0,description = "e.g., right hand performanc
         res['trial_data']['for_time_raw'] = []
         res['trial_data']['ref_interp_snipped'] = []
         res['trial_data']['for_interp_snipped'] = []
-               
+        res['trial_data']['dtw_path'] = []
 
     for trial_type in trial_type_keys:
         res['all'][trial_type] = {}
@@ -134,7 +146,11 @@ def score_spft_data(data,device_idx=0,description = "e.g., right hand performanc
         res['all'][trial_type]['raw_sse'] = []
         res['all'][trial_type]['rmse'] = []
         res['all'][trial_type]['sse'] = []
-
+        res['all'][trial_type]['dtw_path_len'] = []
+        res['all'][trial_type]['dtw_distance'] = []
+        res['all'][trial_type]['dtw_mean_lag_ms'] = []
+        res['all'][trial_type]['dtw_median_lag_ms'] = []
+        
     for block_idx in np.arange(len(blocks)):
         res[f'block_{block_idx}'] = {}
         for trial_type in trial_type_keys:
@@ -145,6 +161,10 @@ def score_spft_data(data,device_idx=0,description = "e.g., right hand performanc
             res[f'block_{block_idx}'][trial_type]['raw_sse'] = []
             res[f'block_{block_idx}'][trial_type]['rmse'] = []
             res[f'block_{block_idx}'][trial_type]['sse'] = []
+            res[f'block_{block_idx}'][trial_type]['dtw_path_len'] = []
+            res[f'block_{block_idx}'][trial_type]['dtw_distance'] = []
+            res[f'block_{block_idx}'][trial_type]['dtw_mean_lag_ms'] = []
+            res[f'block_{block_idx}'][trial_type]['dtw_median_lag_ms'] = []
 
         for trial_idx in np.arange(len(blocks[block_idx]['trials'])):
             trial_name = blocks[block_idx]['trials'][trial_idx]['trialName']
@@ -220,6 +240,9 @@ def score_spft_data(data,device_idx=0,description = "e.g., right hand performanc
             # print(np.corrcoef(snipped_for_vals,snipped_ref_vals)[0,1])
             # print(np.corrcoef(ref_vals_interp,np.interp(for_time+trial_lag_ms, for_time,for_vals))[0,1])
             
+            ## dynmaic time warping data
+            dtw_res = compute_dtw_metrics(ref_vals_interp,for_vals_interp) #still need to *time_per_interval to bring into ms
+            ## end dynamic time warping data
             if save_trial_data:
                 res['trial_data']['ref_interp'].append(ref_vals_interp)
                 res['trial_data']['for_interp'].append(for_vals_interp)
@@ -232,7 +255,7 @@ def score_spft_data(data,device_idx=0,description = "e.g., right hand performanc
 
                 res['trial_data']['ref_interp_snipped'].append(snipped_ref_vals)
                 res['trial_data']['for_interp_snipped'].append(snipped_for_vals)
-                
+                res['trial_data']['dtw_path'].append(dtw_res['path'])
 
             #block-wise data
             res[f'block_{block_idx}'][trial_type]['lag_xcorr_ms'].append(trial_lag_xcorr_ms)
@@ -241,6 +264,10 @@ def score_spft_data(data,device_idx=0,description = "e.g., right hand performanc
             res[f'block_{block_idx}'][trial_type]['raw_sse'].append(trial_sse)
             res[f'block_{block_idx}'][trial_type]['rmse'].append(lag_aligned_trial_rmse)
             res[f'block_{block_idx}'][trial_type]['sse'].append(lag_aligned_trial_sse)
+            res[f'block_{block_idx}'][trial_type]['dtw_distance'].append(dtw_res['distance'])
+            res[f'block_{block_idx}'][trial_type]['dtw_path_len'].append(len(dtw_res['path']))
+            res[f'block_{block_idx}'][trial_type]['dtw_mean_lag_ms'].append(dtw_res['mean_lag']*time_per_interval)
+            res[f'block_{block_idx}'][trial_type]['dtw_median_lag_ms'].append(dtw_res['median_lag']*time_per_interval)
             
             #all data concatenated
             res['all'][trial_type]['lag_xcorr_ms'].append(trial_lag_xcorr_ms)
@@ -249,6 +276,10 @@ def score_spft_data(data,device_idx=0,description = "e.g., right hand performanc
             res['all'][trial_type]['raw_sse'].append(trial_sse)
             res['all'][trial_type]['rmse'].append(lag_aligned_trial_rmse)
             res['all'][trial_type]['sse'].append(lag_aligned_trial_sse)
+            res['all'][trial_type]['dtw_distance'].append(dtw_res['distance'])
+            res['all'][trial_type]['dtw_path_len'].append(len(dtw_res['path']))
+            res['all'][trial_type]['dtw_mean_lag_ms'].append(dtw_res['mean_lag']*time_per_interval)
+            res['all'][trial_type]['dtw_median_lag_ms'].append(dtw_res['median_lag']*time_per_interval)
         
         #convert the current block results to numpy arrays
         res[f'block_{block_idx}'][trial_type]['lag_xcorr_ms'] = np.array(res[f'block_{block_idx}'][trial_type]['lag_xcorr_ms'])
@@ -257,6 +288,10 @@ def score_spft_data(data,device_idx=0,description = "e.g., right hand performanc
         res[f'block_{block_idx}'][trial_type]['raw_sse'] = np.array(res[f'block_{block_idx}'][trial_type]['raw_sse'])
         res[f'block_{block_idx}'][trial_type]['rmse'] = np.array(res[f'block_{block_idx}'][trial_type]['rmse'])
         res[f'block_{block_idx}'][trial_type]['sse'] = np.array(res[f'block_{block_idx}'][trial_type]['sse'])
+        res[f'block_{block_idx}'][trial_type]['dtw_distance'] = np.array(res[f'block_{block_idx}'][trial_type]['dtw_distance'])
+        res[f'block_{block_idx}'][trial_type]['dtw_path_len'] = np.array(res[f'block_{block_idx}'][trial_type]['dtw_path_len'])
+        res[f'block_{block_idx}'][trial_type]['dtw_mean_lag_ms'] = np.array(res[f'block_{block_idx}'][trial_type]['dtw_mean_lag_ms'])
+        res[f'block_{block_idx}'][trial_type]['dtw_median_lag_ms'] = np.array(res[f'block_{block_idx}'][trial_type]['dtw_median_lag_ms'])
             
             # plt.figure()
             # plt.plot(for_time,ref_vals_interp,'k-',label='reference')
@@ -280,5 +315,9 @@ def score_spft_data(data,device_idx=0,description = "e.g., right hand performanc
     res['all'][trial_type]['raw_sse'] = np.array(res['all'][trial_type]['raw_sse'])
     res['all'][trial_type]['rmse'] = np.array(res['all'][trial_type]['rmse'])
     res['all'][trial_type]['sse'] = np.array(res['all'][trial_type]['sse'])
+    res['all'][trial_type]['dtw_distance'] = np.array(res['all'][trial_type]['dtw_distance'])
+    res['all'][trial_type]['dtw_path_len'] = np.array(res['all'][trial_type]['dtw_path_len'])
+    res['all'][trial_type]['dtw_mean_lag_ms'] = np.array(res['all'][trial_type]['dtw_mean_lag_ms'])
+    res['all'][trial_type]['dtw_median_lag_ms'] = np.array(res['all'][trial_type]['dtw_median_lag_ms'])
         
     return res
