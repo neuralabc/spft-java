@@ -44,14 +44,18 @@ def compute_normalized_force_response(device_force_values, MVC, forceRangeMin=0.
         norm_resp[norm_resp>clamp[1]] = clamp[1]
     return norm_resp
 
-def compute_dtw_metrics(t_ref,t_for):
+def compute_dtw_metrics(t_ref,t_for,global_constraint=None,sakoe_chiba_radius=None,itakura_max_slope=None):
     """
     Perform dynamic time warping with tslearn to compute shortest path and distance score (euclidean) between two timeseries
     Under ideal conditions where the entire timeseries is uniformly shifted in time, mean/median path difference (vs diagonal)
     is equivalent to the number of samples shifted in time (i.e., lag) mean/median lags are **EXPERIMENTAL**
+    
+    global_constraint:  constraint on path based on {“itakura”, “sakoe_chiba”} or None (default: None)
+    sakoe_chiba_radius: radius, in steps, from diagonal
+    itakura_max_slope:  maximum slope of path allowed
     """
     from tslearn.metrics import dtw_path
-    path, distance = dtw_path(t_ref,t_for,)
+    path, distance = dtw_path(t_ref,t_for,global_constraint=global_constraint,sakoe_chiba_radius=sakoe_chiba_radius, itakura_max_slope=itakura_max_slope)
     _diff = np.diff(path,axis=1)
     return {"path":path, "distance":distance,"mean_lag":np.mean(_diff),"median_lag":np.median(_diff)}
 
@@ -103,7 +107,9 @@ def get_trial_type_from_name(trial_name, trial_type_keys):
 
 def score_spft_data(data,device_idx=0,description = "e.g., right hand performance", 
                     reference_designation='leftReference', trial_type_keys = ['LRN','SMP','RST'],
-                    exclude_meta_keys = ['blocks','devices'], save_trial_data=True):
+                    exclude_meta_keys = ['blocks','devices'], save_trial_data=True,
+                    global_constraint=None,sakoe_chiba_radius=None,itakura_max_slope=None,
+                    normalize_path_len=True):
     """
     Compute lag and rmse/sse for SPFT data per trial for all trial_type_keys. Output dictionary contains metadata
     from input, blocked data by trial_type ['block_?'] and concatenated data by trial_type ['all'].
@@ -241,7 +247,7 @@ def score_spft_data(data,device_idx=0,description = "e.g., right hand performanc
             # print(np.corrcoef(ref_vals_interp,np.interp(for_time+trial_lag_ms, for_time,for_vals))[0,1])
             
             ## dynmaic time warping data
-            dtw_res = compute_dtw_metrics(ref_vals_interp,for_vals_interp) #still need to *time_per_interval to bring into ms
+            dtw_res = compute_dtw_metrics(ref_vals_interp,for_vals_interp,global_constraint=global_constraint,sakoe_chiba_radius=sakoe_chiba_radius,itakura_max_slope=itakura_max_slope) #still need to *time_per_interval to bring into ms
             ## end dynamic time warping data
             if save_trial_data:
                 res['trial_data']['ref_interp'].append(ref_vals_interp)
@@ -265,7 +271,10 @@ def score_spft_data(data,device_idx=0,description = "e.g., right hand performanc
             res[f'block_{block_idx}'][trial_type]['rmse'].append(lag_aligned_trial_rmse)
             res[f'block_{block_idx}'][trial_type]['sse'].append(lag_aligned_trial_sse)
             res[f'block_{block_idx}'][trial_type]['dtw_distance'].append(dtw_res['distance'])
-            res[f'block_{block_idx}'][trial_type]['dtw_path_len'].append(len(dtw_res['path']))
+            if normalize_path_len:
+                res[f'block_{block_idx}'][trial_type]['dtw_path_len'].append(len(dtw_res['path'])/(len(ref_vals_interp)+len(for_vals_interp)))
+            else:
+                res[f'block_{block_idx}'][trial_type]['dtw_path_len'].append(len(dtw_res['path']))
             res[f'block_{block_idx}'][trial_type]['dtw_mean_lag_ms'].append(dtw_res['mean_lag']*time_per_interval)
             res[f'block_{block_idx}'][trial_type]['dtw_median_lag_ms'].append(dtw_res['median_lag']*time_per_interval)
             
@@ -277,7 +286,10 @@ def score_spft_data(data,device_idx=0,description = "e.g., right hand performanc
             res['all'][trial_type]['rmse'].append(lag_aligned_trial_rmse)
             res['all'][trial_type]['sse'].append(lag_aligned_trial_sse)
             res['all'][trial_type]['dtw_distance'].append(dtw_res['distance'])
-            res['all'][trial_type]['dtw_path_len'].append(len(dtw_res['path']))
+            if normalize_path_len:
+                res['all'][trial_type]['dtw_path_len'].append(len(dtw_res['path'])/(len(ref_vals_interp)+len(for_vals_interp)))
+            else:
+                res['all'][trial_type]['dtw_path_len'].append(len(dtw_res['path']))
             res['all'][trial_type]['dtw_mean_lag_ms'].append(dtw_res['mean_lag']*time_per_interval)
             res['all'][trial_type]['dtw_median_lag_ms'].append(dtw_res['median_lag']*time_per_interval)
         
