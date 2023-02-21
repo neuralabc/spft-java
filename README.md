@@ -46,7 +46,7 @@ Once a JDK or JRE is installed, run
 
 For example, if running a locally built version
 
-`java -jar target/spft-1.0-SNAPSHOT-jar-with-dependencies.jar`
+`java -jar target/spft-1.3-SNAPSHOT-jar-with-dependencies.jar`
 
 This will start a window where you can load a [configuration file](#configuration-file) for a session.
 There is a list of [runtime flags](#runtime-flags) that let you customize some aspects of the application
@@ -84,7 +84,7 @@ bar and a frequency in milliseconds that defines the speed of the sequence. Each
 ### Runtime flags
 Runtime flags are JVM System Properties that control some behaviour of the application
 To pass a system property, use the `-Dproperty=value` syntax before the jar name that's standard in java applications. For
-example, to enable debug mode: `java -jar -Ddebug=true target/spft-1.0-SNAPSHOT-jar-with-dependencies.jar`
+example, to enable debug mode: `java -jar -Ddebug=true target/spft-1.3-SNAPSHOT-jar-with-dependencies.jar`
 
 `debug`: Enables extra verbose logging and panel coloured backgrounds to see where each panel ends  
 `spft.forceData.smoothWindowSize`: The number of samples in the averaging window to calculate the height of the force bar. Default: 1  
