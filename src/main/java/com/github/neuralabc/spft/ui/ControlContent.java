@@ -189,6 +189,7 @@ public class ControlContent {
         } else if (!ForceGauge.DISABLED.equals(rightDevice.getSelectedItem()) && maximumRightContractionValue.getText().isEmpty()) {
             maximumRightContractionValue.requestFocusInWindow();
         } else if (!TriggerSender.DISABLED.equals(triggerDevice.getSelectedItem())) {
+            //TODO: test removing this check to see if it fixes issue with no start button if order wrong
             triggerDevice.requestFocusInWindow();
         } else {
             ready = true;
