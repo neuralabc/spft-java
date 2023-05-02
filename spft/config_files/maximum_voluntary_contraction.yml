@@ -12,7 +12,7 @@ blocks:
   - name: "Block1"
     instructions: "Pinch as hard as you can"
     instructionsDuration: 5000
-    feedback: "DONE"
+    feedback: "Done, thank you"
     feedbackDuration: 5000
     interTrialInterval: 1000
     trials:
