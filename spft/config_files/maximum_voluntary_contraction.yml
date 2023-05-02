@@ -1,5 +1,5 @@
-sessionName: force_pyramid
-outputSuffix: force_pyramid-file.yml
+sessionName: maximum_voluntary_contraction
+outputSuffix: mvc-file.yml
 interBlockInterval: 2000
 triggers: [ "5", "7" ] # optional. If missing, the task will start as soon as the "Start" button is clicked
 colours: # optional
@@ -10,16 +10,16 @@ forceProportionRange:
   max: 1.00
 blocks:
   - name: "Block1"
-    instructions: "Block1 starting"
-    instructionsDuration: 2000
-    feedback: "Block1 finished"
-    feedbackDuration: 2000
+    instructions: "Pinch as hard as you can"
+    instructionsDuration: 5000
+    feedback: "DONE"
+    feedbackDuration: 5000
     interTrialInterval: 1000
     trials:
-      - name: "1_pyramid"
-        sequenceRef: "pyramid"
+      - name: "1_mvc"
+        sequenceRef: "mvc"
 
 sequences:
-  pyramid:
-    frequency: 3000
-    valuesLeft: [.2,.4,.6,.6,.4,.2]
+  mvc:
+    frequency: 1000
+    valuesLeft: [.05,.05,.05,.05,.05]

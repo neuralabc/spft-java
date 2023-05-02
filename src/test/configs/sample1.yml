@@ -34,9 +34,9 @@ blocks:
 
 sequences:
   pulseLeftOnly:
-    frequency: 5
+    frequency: 12
     valuesLeft: [ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0, 0, 0, 0, 0, 0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ]
   pulseBoth:
-    frequency: 5
+    frequency: 12
     valuesLeft: [ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0, 0, 0, 0, 0, 0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ]
     valuesRight: [ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0, 0, 0, 0, 0, 0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ]
