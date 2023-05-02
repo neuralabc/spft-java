@@ -75,12 +75,12 @@ public class Session implements Runnable {
             rightDevice = new ForceGauge("rightDevice", sessionParameters.forceDevicesPorts().get(1), sessionParameters.maximumRightContraction, binding);
         }
         if (!leftDevice.isEnabled() && !rightDevice.isEnabled()) {
-            LOG.warn("All devices are disabled. There will be no force data");
+            LOG.warn("All force devices are disabled. There will be no force data");
         }
         // triggerSender = new TriggerSender("triggerDevice",sessionParameters.usedTriggerPort(),binding);
         triggerSender.setPort(sessionParameters.usedTriggerPort()); // update the port for the triggerSender
         if (!triggerSender.isEnabled()) {
-            LOG.warn("Trigger device is not present. No triggering to external device.");
+            LOG.warn("Trigger device is disabled. No triggering to external device.");
             // triggerSender = null;
         } else {
             LOG.info("Trigger device is present and available.");

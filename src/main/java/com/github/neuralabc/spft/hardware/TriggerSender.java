@@ -129,6 +129,7 @@ public class TriggerSender implements Runnable {
     public void stop() {
         if (isEnabled()) {
             LOG.debug("Stopping device {}", this);
+            this.commPort.closePort();
             thread.interrupt();
         }
     }

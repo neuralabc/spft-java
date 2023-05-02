@@ -83,7 +83,7 @@ public class ControlContent {
 
         leftDevice.addItem(ForceGauge.DISABLED);
         rightDevice.addItem(ForceGauge.DISABLED);
-        triggerDevice.addItem(TriggerSender.DISABLED);
+        triggerDevice.addItem(TriggerSender.DISABLED); // we do not initialize the triggerDevice
 
         List<String> availableDevices = ForceGauge.getDevices();
         availableDevices.forEach(device -> {
@@ -100,6 +100,7 @@ public class ControlContent {
         if (availableDevices.contains(lastRightDevice)) {
             rightDevice.setSelectedItem(lastRightDevice);
         }
+        // consider disabling getting the last trigger device, as this has been causing issues 
         String lastTriggerDevice = prefs.get(LAST_TRIGGER_DEVICE, TriggerSender.DISABLED);
         if (availableDevices.contains(lastTriggerDevice)) {
             triggerDevice.setSelectedItem(lastTriggerDevice);
@@ -148,8 +149,9 @@ public class ControlContent {
             if (!editable) {
                 maximumRightContractionValue.setText("");
             }
-        } else {
-            boolean editable = !TriggerSender.DISABLED.equals(triggerDevice.getSelectedItem());
+        // this does nothing, can be removed
+        // } else {
+        //     boolean editable = !TriggerSender.DISABLED.equals(triggerDevice.getSelectedItem());
         }
     }
 
@@ -188,9 +190,10 @@ public class ControlContent {
             maximumLeftContractionValue.requestFocusInWindow();
         } else if (!ForceGauge.DISABLED.equals(rightDevice.getSelectedItem()) && maximumRightContractionValue.getText().isEmpty()) {
             maximumRightContractionValue.requestFocusInWindow();
-        } else if (!TriggerSender.DISABLED.equals(triggerDevice.getSelectedItem())) {
-            //TODO: test removing this check to see if it fixes issue with no start button if order wrong
-            triggerDevice.requestFocusInWindow();
+        // this should not be necessary for the triggerDevice, as it does not have any text associated with it
+        // } else if (!TriggerSender.DISABLED.equals(triggerDevice.getSelectedItem())) {
+        //     //TODO: test removing this check to see if it fixes issue with no start button if order wrong
+        //     triggerDevice.requestFocusInWindow();
         } else {
             ready = true;
             startButton.requestFocusInWindow();
@@ -221,13 +224,14 @@ public class ControlContent {
             Session.SessionParameters sessionParameters = new Session.SessionParameters(participantIdValue.getText(), outputFileValue.getText(), usedDevices, maximumLeftContraction, maximumRightContraction, usedTrigger);
             currentSession.start(sessionParameters, experimentFrameBinding);
 
+            // ?? disables buttons while the session is being conducted ?? 
             startButton.setEnabled(false);
             participantIdValue.setEnabled(false);
             leftDevice.setEnabled(false);
             maximumLeftContractionValue.setEnabled(false);
             rightDevice.setEnabled(false);
             maximumRightContractionValue.setEnabled(false);
-            triggerDevice.setEnabled(false); //TODO: check that this behaves as expected
+            triggerDevice.setEnabled(false);
         } catch (IOException exc) {
             JOptionPane.showMessageDialog(panel, exc.toString(), "Error writing output", JOptionPane.ERROR_MESSAGE);
         }
