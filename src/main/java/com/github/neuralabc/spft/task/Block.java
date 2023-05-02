@@ -44,6 +44,10 @@ public class Block {
             trialMetadataOutput.addEntry("- trialName", nextTrial.getName());
             trialMetadataOutput.write(outputFile);
             nextTrial.run(binding, outputFile);
+            
+            //ISSUE: if there is only a single element in a trial, then the feedback will be displayed without waiting for the trial to complete
+            // current fix is to ensure that all trials have at least two elements
+            
             if (currentTrial < config.getTrials().size() - 1) {
                 binding.showLeftBars(trials.get(currentTrial + 1).hasLeftSequence());
                 binding.showRightBars(trials.get(currentTrial + 1).hasRightSequence());
