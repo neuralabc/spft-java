@@ -8,7 +8,7 @@ num_triggers = 3*3*5*2; %nine 3 trials for each block, 3 sequences (LRN,SMP,RST)
 %if this is true, then we are good to go!
 numel(triggers) == num_triggers
 
-%
+%%
 triggers = triggers./resample_freq*1000; %to put into same time space as "times", divide by freq and convert to ms
 times = EEG.times;
 
@@ -21,7 +21,7 @@ end
 
 trigger_idxs_on = trigger_idxs(1:2:end);
 trigger_idxs_off = trigger_idxs(2:2:end);
-
+%%
 %assuming LRN, SMP, RST, with 3 trials each and 5 blocks
 LRN_idx= [1:3,[1:3]+9*1,[1:3]+9*2,[1:3]+9*3,[1:3]+9*4]; 
 LRN_on = trigger_idxs_on(LRN_idx);
@@ -39,6 +39,7 @@ for i=1:length(SMP_on)
     temp_d = temp_d2;
   else
     temp_d = horzcat(temp_d,temp_d2);
+  end
 end
 temp_d = temp_d./length(SMP_on);
 C3_SMP_vec = temp_d;
@@ -49,6 +50,7 @@ for i=1:length(LRN_on)
     temp_d = temp_d2;
   else
     temp_d = horzcat(temp_d,temp_d2);
+  end
 end
 temp_d = temp_d./length(LRN_on);
 C3_LRN_vec = temp_d;
@@ -59,9 +61,11 @@ for i=1:length(RST_on)
     temp_d = temp_d2;
   else
     temp_d = horzcat(temp_d,temp_d2);
+  end
 end
 temp_d = temp_d./length(RST_on);
 C3_RST_vec = temp_d;
+%%
 
 %same thing, but for EMG data
 raw_d = [] %specify the EMG data here
@@ -71,6 +75,7 @@ for i=1:length(SMP_on)
     temp_d = temp_d2;
   else
     temp_d = horzcat(temp_d,temp_d2);
+  end
 end
 temp_d = temp_d./length(SMP_on);
 EMG1_SMP_vec = temp_d;
@@ -81,6 +86,7 @@ for i=1:length(LRN_on)
     temp_d = temp_d2;
   else
     temp_d = horzcat(temp_d,temp_d2);
+  end
 end
 temp_d = temp_d./length(LRN_on);
 EMG1_LRN_vec = temp_d;
@@ -91,9 +97,11 @@ for i=1:length(RST_on)
     temp_d = temp_d2;
   else
     temp_d = horzcat(temp_d,temp_d2);
+  end
 end
 temp_d = temp_d./length(RST_on);
 EMG1_RST_vec = temp_d;
+
 
 %% OLDER STUFF -- Compute average per trial (for testing only)
 %create average for SMP trials
