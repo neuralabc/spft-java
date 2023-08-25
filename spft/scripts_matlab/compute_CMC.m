@@ -24,12 +24,12 @@ trigger_idxs_off = trigger_idxs(2:2:end);
 
 %assuming LRN, SMP, RST, with 3 trials each and 5 blocks
 LRN_idx= [1:3,[1:3]+9*1,[1:3]+9*2,[1:3]+9*3,[1:3]+9*4]; 
-LRN_on = trigger_idxs_on(SMP_idx);
-LRN_off = trigger_idxs_off(SMP_idx);
-SMP_on = trigger_idxs_on(SMP_idx+3);
-SMP_off = trigger_idxs_off(SMP_idx+3);
-RST_on = trigger_idxs_on(SMP_idx+6);
-RST_off = trigger_idxs_off(SMP_idx+6);
+LRN_on = trigger_idxs_on(LRN_idx);
+LRN_off = trigger_idxs_off(LRN_idx);
+SMP_on = trigger_idxs_on(LRN_idx+3);
+SMP_off = trigger_idxs_off(LRN_idx+3);
+RST_on = trigger_idxs_on(LRN_idx+6);
+RST_off = trigger_idxs_off(LRN_idx+6);
 
 %% Concatenate trial data from EEG and EMG before computing coherence, 
 raw_d = EEG.data(5,:); %specify the data that you are going to work with (5 is c3 in our example data)
