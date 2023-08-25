@@ -8,6 +8,12 @@ This task is modeled on previous work, including the following (most relevant) r
 - https://pubmed.ncbi.nlm.nih.gov/34704176/
 - https://pubmed.ncbi.nlm.nih.gov/33885965/
 
+### Integration (triggering)
+- The session can be triggered to start by keypress values defined in the [configuration file](#configuration-file)
+- Each trial start/stop can also be synchronized with external devices through serial port triggering (or emulated serial port) 
+  - a single trigger message is sent to the external device (e.g, arduino) for both start and stop: `byte[] TRIGGER_MESSAGE = {'1','\n'}`
+  - the generated [output file](#output) will contain a triggersOut field with times and values indicating start (`'0'`) and stop (`'1'`) 
+
 ## Build
 The application is built with Maven 3
 
@@ -22,7 +28,9 @@ This will generate a runnable jar in the `target` folder
 ## Run
 This application uses Java 17. Make sure it is installed before running the application.
 
-- if you are running this on a linux system, you will require explicit access to the incoming data from ports {`/dev/ttyACM0`; `/dev/ttyACM1`}. This can be granted by the _system administrator_ providing the user with access to the `dialout` group with `sudo usermod -a -G dialout theUserNameHere`
+- if you are running this on a linux system, you will require explicit access to the incoming data from ports {`/dev/ttyACM0`; `/dev/ttyACM1`} and to send triggers out from the program via the serial port if desired {`/dev/ttyACM2`}. This can be granted by the _system administrator_ providing the user with access to the `dialout` group with `sudo usermod -a -G dialout theUserNameHere`
+- to ensure that you are recording from the correct devices __always__ plug the devices in to the USB ports in the same order `(left, right)` and you **must** attach the trigger output device last 
+  - this allows you to ensure that you are always aware of which device is which
 
 ### Installing Java17 (linux)
 Java 11 may still be the default for Ubuntu-based OSs, so you must install it explicitly
@@ -39,7 +47,7 @@ Once a JDK or JRE is installed, run
 
 For example, if running a locally built version
 
-`java -jar target/spft-1.0-SNAPSHOT-jar-with-dependencies.jar`
+`java -jar target/spft-1.3-SNAPSHOT-jar-with-dependencies.jar`
 
 This will start a window where you can load a [configuration file](#configuration-file) for a session.
 There is a list of [runtime flags](#runtime-flags) that let you customize some aspects of the application
@@ -72,12 +80,13 @@ If the parameter is missing, the session will start as soon as the experimenter 
 `blocks.trials`: A list of references to the sequences that define each trial. The referenced sequence has to exist in
 the top-level pool of sequences  
 `sequences`: A pool of sequences that can be referenced in blocks' trials. Each sequence has the values for the reference
-bar and a frequency in Hz that defines the speed of the sequence 
+bar and a frequency in milliseconds that defines the speed of the sequence. Each value of the sequence is displayed for this length of time.
+  - a sequence must be made up of at least two timepoints (i.e., two height values) to ensure correct timing of feedback at the end of the block
 
 ### Runtime flags
 Runtime flags are JVM System Properties that control some behaviour of the application
 To pass a system property, use the `-Dproperty=value` syntax before the jar name that's standard in java applications. For
-example, to enable debug mode: `java -jar -Ddebug=true target/spft-1.0-SNAPSHOT-jar-with-dependencies.jar`
+example, to enable debug mode: `java -jar -Ddebug=true target/spft-1.3-SNAPSHOT-jar-with-dependencies.jar`
 
 `debug`: Enables extra verbose logging and panel coloured backgrounds to see where each panel ends  
 `spft.forceData.smoothWindowSize`: The number of samples in the averaging window to calculate the height of the force bar. Default: 1  
@@ -117,7 +126,8 @@ relative to the other times in the session
 `blocks.trials`: A list of the presentation values and their actual timestamps using a CPU clock  
 `blocks.endTimestamp`: The end of the block using a CPU clock  
 `devices`: A list of hardware force devices with each element containing the full stream of data starting when one of the triggers is received  
-`triggers`: A lif of triggers received throughout the session
+`triggers`: A list of triggers received throughout the session
+`triggersOut`: If present, indicates serial out hardware device and port name for triggers sent to arduino. Contains the times and values for each trigger
 
 ## Implementation notes
 ### Force bar height

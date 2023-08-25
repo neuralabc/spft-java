@@ -6,23 +6,20 @@ colours: # optional
   leftReference: 1D8348
   leftForce: 82E0AA
 forceProportionRange:
-  min: 0.05
-  max: 0.95
+  min: 0.00
+  max: 1.00
 blocks:
-  - name: "block1"
+  - name: "Block1"
     instructions: "Block1 starting"
     instructionsDuration: 2000
     feedback: "Block1 finished"
     feedbackDuration: 2000
     interTrialInterval: 1000
     trials:
-      - name: "1_LRN"
-        sequenceRef: "pulse"
-      - name: "2_LRN"
-        sequenceRef: "pulse"
+      - name: "1_pyramid"
+        sequenceRef: "pyramid"
 
 sequences:
-  pulse:
-    frequency: 10
-    valuesLeft: 1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1]
-
+  pyramid:
+    frequency: 3000
+    valuesLeft: [.05,.2,.4,.6,.6,.4,.2,.05]

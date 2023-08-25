@@ -1,6 +1,7 @@
 package com.github.neuralabc.spft.task;
 
 import com.github.neuralabc.spft.hardware.ForceGauge;
+import com.github.neuralabc.spft.hardware.TriggerSender;
 import com.github.neuralabc.spft.hardware.TriggerTracker;
 import com.github.neuralabc.spft.task.config.SessionConfig;
 import com.github.neuralabc.spft.task.exceptions.OutputException;
@@ -36,6 +37,7 @@ public class Session implements Runnable {
     private ForceGauge leftDevice;
     private ForceGauge rightDevice;
     private final TriggerTracker triggerTracker;
+    private TriggerSender triggerSender;
     private Thread thread;
 
     public Session(File selectedFile) {
@@ -51,8 +53,8 @@ public class Session implements Runnable {
             } else {
                 triggerTracker = TriggerTracker.NO_TRIGGERS;
             }
-
-            blocks = config.getBlocks().stream().map(blockConfig -> new Block(blockConfig, config.getSequences())).collect(Collectors.toList());
+            triggerSender = new TriggerSender("triggerDevice","Disabled"); // create a dummy instance of triggerSender that is disabled, before we know what port to look in
+            blocks = config.getBlocks().stream().map(blockConfig -> new Block(blockConfig, config.getSequences(), triggerSender)).collect(Collectors.toList());
         } catch (FileNotFoundException ex) {
             throw new SessionException("Error opening configuration", ex);
         } catch (YAMLException ex) {
@@ -73,7 +75,16 @@ public class Session implements Runnable {
             rightDevice = new ForceGauge("rightDevice", sessionParameters.forceDevicesPorts().get(1), sessionParameters.maximumRightContraction, binding);
         }
         if (!leftDevice.isEnabled() && !rightDevice.isEnabled()) {
-            LOG.warn("All devices are disabled. There will be no force data");
+            LOG.warn("All force devices are disabled. There will be no force data");
+        }
+        // triggerSender = new TriggerSender("triggerDevice",sessionParameters.usedTriggerPort(),binding);
+        triggerSender.setPort(sessionParameters.usedTriggerPort()); // update the port for the triggerSender
+        if (!triggerSender.isEnabled()) {
+            LOG.warn("Trigger device is disabled. No triggering to external device.");
+            // triggerSender = null;
+        } else {
+            LOG.info("Trigger device is present and available.");
+            LOG.info("\t{}",triggerSender);
         }
         this.outputFile = Path.of(sessionParameters.outputFile());
         writeSessionMetadata(sessionParameters);
@@ -146,7 +157,7 @@ public class Session implements Runnable {
             triggerTracker.waitNext();
             leftDevice.start();
             rightDevice.start();
-
+            triggerSender.start();
             for (int currentBlock = 0; currentBlock < config.getBlocks().size(); currentBlock++) {
                 Block nextBlock = blocks.get(currentBlock);
 
@@ -179,11 +190,20 @@ public class Session implements Runnable {
                 triggerTracker.writeOutput(outputFile);
             }
 
+            if (triggerSender.isEnabled()){ //external triggers sent by this program
+                OutputSection triggersOut = new OutputSection();
+                triggersOut.addEntry("triggersOut", "");
+                triggersOut.write(outputFile);
+                triggerSender.writeOutput(outputFile);
+            }
+
             LOG.info("Session '{}' ended successfully", getConfig().getSessionName());
         } catch (InterruptedException e) {
             LOG.warn("Interrupted session '{}'", config.getSessionName(), e);
         } catch (IOException e) {
             LOG.error("Problem writing output to {}", outputFile, e);
+        } finally {
+            triggerSender.stop();
         }
     }
 
@@ -209,6 +229,6 @@ public class Session implements Runnable {
     }
 
     public record SessionParameters(String participantId, String outputFile, List<String> forceDevicesPorts,
-                                    int maximumLeftContraction, int maximumRightContraction) {
+                                    int maximumLeftContraction, int maximumRightContraction, String usedTriggerPort) {
     }
 }
