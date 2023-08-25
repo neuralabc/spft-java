@@ -124,6 +124,16 @@ end
 temp_d = temp_d./length(LRN_on);
 LRN_avg = temp_d;
 
+%now for RST trials
+temp_d = zeros(1,8762);%THIS IS JUST FOR TESTING
+for i=1:length(RST_on)
+  temp_d2 = EEG.data(5,RST_on(i):RST_off(i));
+  disp(length(temp_d2))
+  temp_d = temp_d + temp_d2(1:8762);
+end
+temp_d = temp_d./length(RST_on);
+RST_avg = temp_d;
+
 
 %% EMG
 %initial code for EMG extraction, we assume the timecodes are the same
