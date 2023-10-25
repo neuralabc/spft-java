@@ -123,10 +123,16 @@ first run of the experiment
 `blocks`: A list of every block and its trials   
 `blocks.startTimestamp`: The start of the block using a CPU clock. Its value is meaningless in absolute terms, it is only
 relative to the other times in the session  
-`blocks.trials`: A list of the presentation values and their actual timestamps using a CPU clock  
+`blocks.trials`: A list of the presentation values and their actual timestamps using a CPU clock
+`blocks.trials.*.times`: Actual timestamps of presentation values using a CPU clock
+`blocks.trials.*.values`: Presentation values corresponding to reference bar height, predetermined according to input yml file
 `blocks.endTimestamp`: The end of the block using a CPU clock  
-`devices`: A list of hardware force devices with each element containing the full stream of data starting when one of the triggers is received  
+`devices`: A list of hardware force devices with each element containing the full stream of data starting when one of the triggers is received
+`devices.*.times`: Timestamps of recorded values read from the input device using a CPU clock
+`devices.*.values`: Recorded values corresponding to participants pinch force collected by the device 
 `triggers`: A list of triggers received throughout the session
+`triggers.times`: CPU time trigger was received by computer
+`triggers.values`: Value recived to trigger the start of the first block
 `triggersOut`: If present, indicates serial out hardware device and port name for triggers sent to arduino. Contains the times and values for each trigger
 
 ## Implementation notes
