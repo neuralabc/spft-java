@@ -47,7 +47,7 @@ Once a JDK or JRE is installed, run
 
 For example, if running a locally built version
 
-`java -jar target/spft-1.3-SNAPSHOT-jar-with-dependencies.jar`
+`java -jar target/spft-1.5-SNAPSHOT-jar-with-dependencies.jar`
 
 This will start a window where you can load a [configuration file](#configuration-file) for a session.
 There is a list of [runtime flags](#runtime-flags) that let you customize some aspects of the application
@@ -138,7 +138,7 @@ relative to the other times in the session
 `devices.*.values`: Recorded values corresponding to participants pinch force collected by the device 
 `triggers`: A list of triggers received throughout the session
 `triggers.times`: CPU time trigger was received by computer
-`triggers.values`: Value recived to trigger the start of the first block
+`triggers.values`: Value received to trigger the start of the first block
 `triggersOut`: If present, indicates serial out hardware device and port name for triggers sent to arduino. Contains the times and values for each trigger
 
 ## Implementation notes
