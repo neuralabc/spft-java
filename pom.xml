@@ -6,7 +6,7 @@
 
     <groupId>com.github.neuralabc.spft</groupId>
     <artifactId>spft</artifactId>
-    <version>1.4-SNAPSHOT</version>
+    <version>1.5-SNAPSHOT</version>
     <name>Sequence Pinch Force Task</name>
     <description>A Java implementation of a Sequence Pinch Force task, with ability to trigger to external serial device</description>
 

@@ -69,7 +69,13 @@ or after the last one
 `triggers`: [Optional] A list or single key that needs to be pressed to start the session after the experimenter has manually
 started it. This is useful when there's an external devices that needs to synchronize execution, such as an MRI scanner.
 If the parameter is missing, the session will start as soon as the experimenter clicks on start  
-`colours`: [Optional] A hex colour code (without '#') to use for the `leftReference`, `leftForce`, `rightReference` or `rightForce` bars  
+`colours`: [Optional] A hex colour code (without '#') to use for the `leftReference`, `leftForce`, `rightReference` or `rightForce` bars
+```
+  colours: # optional
+    leftReference: 0000FF #blue
+    leftForce: FEFE00 #yellow
+```
+
 `blocks`: The list of blocks in the sessions  
 `blocks.name`: A friendly name of a particular block. Seen only by the experimenter  
 `blocks.instructions`: A string giving the instructions to the participant of the block that is about to start  

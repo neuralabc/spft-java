@@ -31,12 +31,19 @@ public class Block {
     public void run(ExperimentFrame.Binding binding, Path outputFile) throws InterruptedException, IOException {
         LOG.info("\tStarting block '{}'", config.getName());
 
+        // set the position of the bars back to 0 (which will be equivalent to min height)
+        // at the start of every block to ensure that the participant does not move
+        // to the last position of the previous trial (and b/c this is set to 1 on the 1st block)
+        binding.setLeftReferenceValue(0.0); // testing
+        binding.setRightReferenceValue(0.0); // testing
+        
         binding.showLeftBars(trials.get(0).hasLeftSequence());
         binding.showRightBars(trials.get(0).hasRightSequence());
+
         binding.showText(config.getInstructions());
+        
         Thread.sleep(config.getInstructionsDuration());
         binding.showText("");
-
         for (int currentTrial = 0; currentTrial < config.getTrials().size(); currentTrial++) {
             Trial nextTrial = trials.get(currentTrial);
 
