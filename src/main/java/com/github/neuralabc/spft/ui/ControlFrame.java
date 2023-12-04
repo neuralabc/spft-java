@@ -16,6 +16,12 @@ public class ControlFrame extends JFrame {
     private ControlFrame(ExperimentFrame.Binding binding) throws HeadlessException {
         super("Control");
 
+        // Calculate scale factor based on DPI
+        double scaleFactor = getScaleFactor();
+
+        // Apply scaling factor to font and possibly other components
+        setUIFont(new javax.swing.plaf.FontUIResource("SansSerif", Font.PLAIN, (int)(12 * scaleFactor)));
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         ControlContent controlContent = new ControlContent(binding);
         setContentPane(controlContent.getPanel());
@@ -23,6 +29,23 @@ public class ControlFrame extends JFrame {
         pack();
     }
 
+    // Utility method to calculate scale factor
+    private double getScaleFactor() {
+        int defaultDPI = 96;
+        int currentDPI = Toolkit.getDefaultToolkit().getScreenResolution();
+        return (double) currentDPI / defaultDPI;
+    }
+
+    private static void setUIFont(javax.swing.plaf.FontUIResource f) {
+        java.util.Enumeration keys = UIManager.getDefaults().keys();
+        while (keys.hasMoreElements()) {
+            Object key = keys.nextElement();
+            Object value = UIManager.get(key);
+            if (value instanceof javax.swing.plaf.FontUIResource) {
+                UIManager.put(key, f);
+            }
+        }
+    }
     public static void main(String[] args) {
         if (Boolean.getBoolean("debug")) {
             ch.qos.logback.classic.Logger ourLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("com.github.neuralabc");

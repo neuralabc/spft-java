@@ -357,3 +357,59 @@ periodogram(lc3(1:18000),rectwin(18*1000),18*1000,500)
 %periodogram(lc3(1:18000),rectwin(18*1000),18*1000,500)
 periodogram(lc3(end-18000:end),rectwin(18*1000),18*1000,500)
 %periodogram(lc3(end-18001:end),rectwin(18*1000),18*1000,500)
+
+%% setting the data up for carmen to use
+% all of the channels, same number of samples in each trial, all trials
+
+num_samples = 8500;
+for i=1:length(SMP_on)
+    lookup_idxs = SMP_on(i):SMP_off(i);
+    lookup_idxs = lookup_idxs(end-num_samples+1:end); %crop to the size we need
+    EEG_temp_2 = ALLEEG(1).data(:,lookup_idxs);
+    EMG_temp_2 = ALLEEG(2).data(:,lookup_idxs);
+    
+    if i == 1
+        eeg_d = EEG_temp_2;
+        emg_d = EMG_temp_2;
+    else
+        eeg_d = horzcat(eeg_d,EEG_temp_2);
+        emg_d = horzcat(emg_d,EMG_temp_2);
+    end
+end
+eeg_SMP = eeg_d;
+emg_SMP = emg_d;
+
+for i=1:length(LRN_on)
+    lookup_idxs = LRN_on(i):LRN_off(i);
+    lookup_idxs = lookup_idxs(end-num_samples+1:end); %crop to the size we need
+    EEG_temp_2 = ALLEEG(1).data(:,lookup_idxs);
+    EMG_temp_2 = ALLEEG(2).data(:,lookup_idxs);
+    
+    if i == 1
+        eeg_d = EEG_temp_2;
+        emg_d = EMG_temp_2;
+    else
+        eeg_d = horzcat(eeg_d,EEG_temp_2);
+        emg_d = horzcat(emg_d,EMG_temp_2);
+    end
+end
+eeg_LRN = eeg_d;
+emg_LRN = emg_d;
+
+for i=1:length(RST_on)
+    lookup_idxs = RST_on(i):RST_off(i);
+    lookup_idxs = lookup_idxs(end-num_samples+1:end); %crop to the size we need
+    EEG_temp_2 = ALLEEG(1).data(:,lookup_idxs);
+    EMG_temp_2 = ALLEEG(2).data(:,lookup_idxs);
+    
+    if i == 1
+        eeg_d = EEG_temp_2;
+        emg_d = EMG_temp_2;
+    else
+        eeg_d = horzcat(eeg_d,EEG_temp_2);
+        emg_d = horzcat(emg_d,EMG_temp_2);
+    end
+end
+eeg_RST = eeg_d;
+emg_RST = emg_d;
+chanlocs = ALLEEG(1).chanlocs;
