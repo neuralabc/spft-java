@@ -27,12 +27,16 @@ public class ControlFrame extends JFrame {
         setContentPane(controlContent.getPanel());
 
         pack();
+
+        //scale the window to ensure that everything fits, using the same factor based on DPI
+        scaleFrameSize(this, scaleFactor);
     }
 
     // Utility method to calculate scale factor
     private double getScaleFactor() {
         int defaultDPI = 96;
         int currentDPI = Toolkit.getDefaultToolkit().getScreenResolution();
+        System.out.println("Current system DPI: " + currentDPI);
         return (double) currentDPI / defaultDPI;
     }
 
@@ -46,6 +50,14 @@ public class ControlFrame extends JFrame {
             }
         }
     }
+
+    private static void scaleFrameSize(JFrame frame, double scaleFactor) {
+        Dimension size = frame.getSize();
+        size.width *= scaleFactor;
+        size.height *= scaleFactor;
+        frame.setSize(size);
+    }
+
     public static void main(String[] args) {
         if (Boolean.getBoolean("debug")) {
             ch.qos.logback.classic.Logger ourLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("com.github.neuralabc");
