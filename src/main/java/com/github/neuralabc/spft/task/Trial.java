@@ -106,24 +106,45 @@ public class Trial {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (sequencePos >= sequence.getLength()) {
-                //just in case timer is not cancelled before a next tick
-                return;
-            }
-            if (hasLeftSequence()) {
-                double leftReferenceValue = sequence.getValuesLeft().get(sequencePos);
-                leftReferenceOutput.addSample(leftReferenceValue);
-                binding.setLeftReferenceValue(leftReferenceValue);
-            }
-            if (hasRightSequence()) {
-                double rightReferenceValue = sequence.getValuesRight().get(sequencePos);
-                rightReferenceOutput.addSample(rightReferenceValue);
-                binding.setRightReferenceValue(rightReferenceValue);
-            }
-            sequencePos++;
-            if (sequencePos >= sequence.getLength()) {
+            if (sequencePos < sequence.getLength()) {
+                if (hasLeftSequence()) {
+                    double leftReferenceValue = sequence.getValuesLeft().get(sequencePos);
+                    leftReferenceOutput.addSample(leftReferenceValue);
+                    binding.setLeftReferenceValue(leftReferenceValue);
+                }
+                if (hasRightSequence()) {
+                    double rightReferenceValue = sequence.getValuesRight().get(sequencePos);
+                    rightReferenceOutput.addSample(rightReferenceValue);
+                    binding.setRightReferenceValue(rightReferenceValue);
+                }
+                sequencePos++;
+            } else {
+                // Stop the timer and signal the end of the trial
+                // ((Timer) e.getSource()).stop(); //removed timer stop here, it is handled in the run above 
                 sync.countDown();
             }
         }
+        // original code, to be removed AFTER testing confirms that there is no additional change
+        // @Override
+        // public void actionPerformed(ActionEvent e) {
+        //     if (sequencePos >= sequence.getLength()) {
+        //         //just in case timer is not cancelled before a next tick
+        //         return;
+        //     }
+        //     if (hasLeftSequence()) {
+        //         double leftReferenceValue = sequence.getValuesLeft().get(sequencePos);
+        //         leftReferenceOutput.addSample(leftReferenceValue);
+        //         binding.setLeftReferenceValue(leftReferenceValue);
+        //     }
+        //     if (hasRightSequence()) {
+        //         double rightReferenceValue = sequence.getValuesRight().get(sequencePos);
+        //         rightReferenceOutput.addSample(rightReferenceValue);
+        //         binding.setRightReferenceValue(rightReferenceValue);
+        //     }
+        //     sequencePos++;
+        //     if (sequencePos >= sequence.getLength()) {
+        //         sync.countDown();
+        //     }
+        // }
     }
 }
