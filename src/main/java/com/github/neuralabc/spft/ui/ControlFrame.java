@@ -1,10 +1,19 @@
 package com.github.neuralabc.spft.ui;
 
-import ch.qos.logback.classic.Level;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
+import java.awt.Toolkit;
+
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
+import ch.qos.logback.classic.Level;
 import java.awt.*;
 
 /**
@@ -34,6 +43,22 @@ public class ControlFrame extends JFrame {
 
     // Utility method to calculate scale factor
     private double getScaleFactor() {
+        GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+
+        // Get the current display mode
+        DisplayMode displayMode = device.getDisplayMode();
+
+        if (displayMode != null) {
+            // Print out display mode details
+            System.out.println("--Display mode details--")
+            System.out.println("Width: " + displayMode.getWidth());
+            System.out.println("Height: " + displayMode.getHeight());
+            System.out.println("Bit Depth: " + displayMode.getBitDepth());
+            System.out.println("Refresh Rate: " + displayMode.getRefreshRate());
+        } else {
+            System.out.println("Display Mode is not available");
+        }
+
         int defaultDPI = 96;
         int currentDPI = Toolkit.getDefaultToolkit().getScreenResolution();
         System.out.println("Current system DPI: " + currentDPI);
