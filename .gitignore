@@ -74,3 +74,4 @@ spft/testing/output/*.yml
 .ipynb_checkpoints*
 spft/testing/GE_VMSL/*
 spft/testing/GE_VMSL/
+spft/testing/GE_MAGNUS/
