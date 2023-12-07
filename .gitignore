@@ -72,6 +72,7 @@ spft/__pycache__/*
 spft/__pycache__
 spft/testing/output/*.yml
 .ipynb_checkpoints*
-spft/testing/GE_VMSL
+spft/testing/GE_MAGNUS/
+spft/testing/GE_VMSL/
 local_extras/
 
