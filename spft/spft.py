@@ -109,13 +109,17 @@ def score_spft_data(data,device_idx=0,description = "e.g., right hand performanc
                     reference_designation='leftReference', trial_type_keys = ['LRN','SMP','RST'],
                     exclude_meta_keys = ['blocks','devices'], save_trial_data=True,
                     global_constraint=None,sakoe_chiba_radius=None,itakura_max_slope=None,
-                    normalize_path_len=True):
+                    normalize_path_len=True, cut_time_flag=None, cut_time=0):
     """
     Compute lag and rmse/sse for SPFT data per trial for all trial_type_keys. Output dictionary contains metadata
     from input, blocked data by trial_type ['block_?'] and concatenated data by trial_type ['all'].
     Triggers not yet handled in the processing (TODO: output summary scored data between each set of triggers)
     exclude_meta_keys:      dictionary keys to exclude from stored metadata, by default ['blocks','devices'],
                             which are the presentation data and the response data respectively 
+
+                            #EXPERIMENTAL CUTTING OF TIMEPOINTS FROM START OR END OF TRIAL
+                            cut_time_flag = {None,'start','end'}
+                            cut_time = time, in units of time of the acquisition, to cut from start or end of each trial of data
     """
     MVC = data['maximumLeftVoluntaryContraction']
     blocks = data['blocks']
@@ -192,9 +196,25 @@ def score_spft_data(data,device_idx=0,description = "e.g., right hand performanc
             # times are in ms, and we use the mean time per interval for the conversion of lag (in timestep units) to ms
             # return for_time,ref_time,for_vals,ref_vals
             common_time = np.linspace(ref_time.min(),ref_time.max(),ref_time.shape[0]*2)
+            
             ref_vals_interp = np.interp(common_time,ref_time,ref_vals)
             for_vals_interp = np.interp(common_time,for_time,for_vals)
             # ref_vals_interp = interp1d(ref_time,ref_vals,kind='cubic')(for_time) #does not seem to make a difference here
+            
+            #experimental cutting of initial timepoints from the start or end of each of the trials
+            if cut_time_flag is not None:
+                _ct = common_time - common_time[0]
+                if cut_time_flag == "start":
+                    cut_pt = np.where(_ct>cut_time)[0][0]
+                    ref_vals_interp = ref_vals_interp[cut_pt:]
+                    for_vals_interp = for_vals_interp[cut_pt:]
+                    common_time = common_time[cut_pt:]
+                if cut_time_flag == "end":
+                    cut_pt = np.where((_ct[-1]-_ct)<cut_time)[0][0]
+                    ref_vals_interp = ref_vals_interp[:cut_pt]
+                    for_vals_interp = for_vals_interp[:cut_pt]
+                    common_time = common_time[:cut_pt]
+
             trial_lag_xcorr = lag_calc(ref_vals_interp,for_vals_interp) #in samples
             time_per_interval = np.mean(np.diff(common_time)) #time, in ms
             # time_std_per_interval = np.std(np.diff(common_time)) #time, in ms
