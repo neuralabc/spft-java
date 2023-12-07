@@ -50,7 +50,7 @@ public class ControlFrame extends JFrame {
 
         if (displayMode != null) {
             // Print out display mode details
-            System.out.println("--Display mode details--")
+            System.out.println("--Display mode details--");
             System.out.println("Width: " + displayMode.getWidth());
             System.out.println("Height: " + displayMode.getHeight());
             System.out.println("Bit Depth: " + displayMode.getBitDepth());
