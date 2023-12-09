@@ -81,7 +81,7 @@ example, to enable debug mode: `java -jar -Ddebug=true target/spft-1.0-SNAPSHOT-
 
 `debug`: Enables extra verbose logging and panel coloured backgrounds to see where each panel ends  
 `spft.forceData.smoothWindowSize`: The number of samples in the averaging window to calculate the height of the force bar. Default: 1  
-`spft.ui.font.size`: Font size for the instructions and feedback text. Default: calculated relative to screen's vertical resolution  
+`spft.ui.font.size`: Font size for the instructions and feedback text. Default: calculated relative to screen's vertical resolution
 `spft.ui.bars.minHeight`: Minimum height of the bars, in pixels. Default: 20   
 `spft.ui.bars.maxHeight`: Maximum height of the bars, in pixels. Default: calculated relative to screen's vertical resolution   
 `spft.ui.bars.width`: Bars width in pixels. Default: calculated relative to screen's horizontal resolution  
