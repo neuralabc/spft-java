@@ -1,6 +1,7 @@
 package com.github.neuralabc.spft.ui;
 
 import com.github.neuralabc.spft.hardware.ForceGauge;
+import com.github.neuralabc.spft.hardware.TriggerSender;
 import com.github.neuralabc.spft.task.Session;
 import com.github.neuralabc.spft.task.config.SessionConfig;
 import com.github.neuralabc.spft.task.exceptions.SessionException;
@@ -34,6 +35,7 @@ public class ControlContent {
     private static final String LAST_FOLDER = "lastFolder";
     private static final String LAST_LEFT_DEVICE = "lastLeftDevice";
     private static final String LAST_RIGHT_DEVICE = "lastRightDevice";
+    private static final String LAST_TRIGGER_DEVICE = "lastTriggerDevice";
 
     private final Preferences prefs;
     private final ExperimentFrame.Binding experimentFrameBinding;
@@ -47,6 +49,7 @@ public class ControlContent {
     private JLabel versionLabel;
     private JComboBox<String> leftDevice;
     private JComboBox<String> rightDevice;
+    private JComboBox<String> triggerDevice;
     private JFormattedTextField maximumLeftContractionValue;
     private JFormattedTextField maximumRightContractionValue;
     private final JFileChooser fileChooser;
@@ -60,6 +63,7 @@ public class ControlContent {
         loadButton.addActionListener(e -> loadClicked());
         leftDevice.addActionListener(this::deviceSelectionChanged);
         rightDevice.addActionListener(this::deviceSelectionChanged);
+        triggerDevice.addActionListener(this::deviceSelectionChanged);
 
         participantIdValue.addActionListener(e -> participantIdChanged(e.getActionCommand()));
         DefaultFormatter defaultFormatter = new DefaultFormatter();
@@ -79,11 +83,13 @@ public class ControlContent {
 
         leftDevice.addItem(ForceGauge.DISABLED);
         rightDevice.addItem(ForceGauge.DISABLED);
+        triggerDevice.addItem(TriggerSender.DISABLED); // we do not initialize the triggerDevice
 
         List<String> availableDevices = ForceGauge.getDevices();
         availableDevices.forEach(device -> {
             leftDevice.addItem(device);
             rightDevice.addItem(device);
+            triggerDevice.addItem(device);
         });
 
         String lastLeftDevice = prefs.get(LAST_LEFT_DEVICE, ForceGauge.DISABLED);
@@ -93,6 +99,11 @@ public class ControlContent {
         String lastRightDevice = prefs.get(LAST_RIGHT_DEVICE, ForceGauge.DISABLED);
         if (availableDevices.contains(lastRightDevice)) {
             rightDevice.setSelectedItem(lastRightDevice);
+        }
+        // consider disabling getting the last trigger device, as this has been causing issues 
+        String lastTriggerDevice = prefs.get(LAST_TRIGGER_DEVICE, TriggerSender.DISABLED);
+        if (availableDevices.contains(lastTriggerDevice)) {
+            triggerDevice.setSelectedItem(lastTriggerDevice);
         }
     }
 
@@ -115,6 +126,7 @@ public class ControlContent {
                 rightDevice.setEnabled(true);
                 maximumRightContractionValue.setEnabled(true);
                 maximumRightContractionValue.setText("");
+                triggerDevice.setEnabled(true);
                 prefs.put(LAST_FOLDER, selectedFile.getParent());
                 experimentFrameBinding.setColours(currentSession.getConfig().getColours());
                 experimentFrameBinding.setForceRange(currentSession.getConfig().getForceProportionRange());
@@ -131,12 +143,15 @@ public class ControlContent {
             if (!editable) {
                 maximumLeftContractionValue.setText("");
             }
-        } else {
+        } else if (event.getSource() == rightDevice) {
             boolean editable = !ForceGauge.DISABLED.equals(rightDevice.getSelectedItem());
             maximumRightContractionValue.setEditable(editable);
             if (!editable) {
                 maximumRightContractionValue.setText("");
             }
+        // this does nothing, can be removed
+        // } else {
+        //     boolean editable = !TriggerSender.DISABLED.equals(triggerDevice.getSelectedItem());
         }
     }
 
@@ -175,6 +190,10 @@ public class ControlContent {
             maximumLeftContractionValue.requestFocusInWindow();
         } else if (!ForceGauge.DISABLED.equals(rightDevice.getSelectedItem()) && maximumRightContractionValue.getText().isEmpty()) {
             maximumRightContractionValue.requestFocusInWindow();
+        // this should not be necessary for the triggerDevice, as it does not have any text associated with it
+        // } else if (!TriggerSender.DISABLED.equals(triggerDevice.getSelectedItem())) {
+        //     //TODO: test removing this check to see if it fixes issue with no start button if order wrong
+        //     triggerDevice.requestFocusInWindow();
         } else {
             ready = true;
             startButton.requestFocusInWindow();
@@ -188,26 +207,31 @@ public class ControlContent {
 
     private void startClicked() {
         try {
-            if (leftDevice.getSelectedItem() == null || rightDevice.getSelectedItem() == null) {
+            if (leftDevice.getSelectedItem() == null || rightDevice.getSelectedItem() == null) { //TODO: add check here for trigger?
                 throw new IllegalStateException("Start should only be allowed when both left and right devices are set");
             }
             String leftItem = (String) leftDevice.getSelectedItem();
             prefs.put(LAST_LEFT_DEVICE, leftItem);
             String rightItem = (String) rightDevice.getSelectedItem();
             prefs.put(LAST_RIGHT_DEVICE, rightItem);
+            String triggerItem = (String) triggerDevice.getSelectedItem();
+            prefs.put(LAST_TRIGGER_DEVICE, triggerItem);
 
             List<String> usedDevices = List.of(leftItem, rightItem);
+            String usedTrigger = triggerItem;
             int maximumLeftContraction = maximumLeftContractionValue.getText().isEmpty() ? -1 : Integer.parseInt(maximumLeftContractionValue.getText());
             int maximumRightContraction = maximumRightContractionValue.getText().isEmpty() ? -1 : Integer.parseInt(maximumRightContractionValue.getText());
-            Session.SessionParameters sessionParameters = new Session.SessionParameters(participantIdValue.getText(), outputFileValue.getText(), usedDevices, maximumLeftContraction, maximumRightContraction);
+            Session.SessionParameters sessionParameters = new Session.SessionParameters(participantIdValue.getText(), outputFileValue.getText(), usedDevices, maximumLeftContraction, maximumRightContraction, usedTrigger);
             currentSession.start(sessionParameters, experimentFrameBinding);
 
+            // ?? disables buttons while the session is being conducted ?? 
             startButton.setEnabled(false);
             participantIdValue.setEnabled(false);
             leftDevice.setEnabled(false);
             maximumLeftContractionValue.setEnabled(false);
             rightDevice.setEnabled(false);
             maximumRightContractionValue.setEnabled(false);
+            triggerDevice.setEnabled(false);
         } catch (IOException exc) {
             JOptionPane.showMessageDialog(panel, exc.toString(), "Error writing output", JOptionPane.ERROR_MESSAGE);
         }
@@ -239,7 +263,7 @@ public class ControlContent {
      */
     private void $$$setupUI$$$() {
         panel = new JPanel();
-        panel.setLayout(new GridLayoutManager(10, 2, new Insets(10, 10, 10, 10), -1, -1));
+        panel.setLayout(new GridLayoutManager(12, 2, new Insets(10, 10, 10, 10), -1, -1));
         final JLabel label1 = new JLabel();
         label1.setText("Configuration");
         panel.add(label1, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -308,7 +332,13 @@ public class ControlContent {
         panel.add(label8, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         rightDevice = new JComboBox();
         panel.add(rightDevice, new GridConstraints(8, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label9 = new JLabel();
+        label9.setText("Trigger device");
+        panel.add(label9, new GridConstraints(10, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        triggerDevice = new JComboBox();
+        panel.add(triggerDevice, new GridConstraints(10, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
+    
 
     /**
      * @noinspection ALL

@@ -68,5 +68,10 @@ stage/
 
 *.jar
 spft/output/xxx_Test_Right_Only_out-file.yml
-spft/__pycache__/spft.cpython-39.pyc
-spft/__pycache__/spft.cpython-39.pyc
+spft/__pycache__/*
+spft/__pycache__
+spft/testing/output/*.yml
+.ipynb_checkpoints*
+spft/testing/GE_VMSL/*
+spft/testing/GE_VMSL/
+spft/testing/GE_MAGNUS/

@@ -1,0 +1,25 @@
+sessionName: maximum_voluntary_contraction
+outputSuffix: mvc-file.yml
+interBlockInterval: 2000
+triggers: [ "5", "7" ] # optional. If missing, the task will start as soon as the "Start" button is clicked
+colours: # optional
+  leftReference: 1D8348
+  leftForce: 82E0AA
+forceProportionRange:
+  min: 0.00
+  max: 1.00
+blocks:
+  - name: "Block1"
+    instructions: "Pinch as hard as you can"
+    instructionsDuration: 5000
+    feedback: "Done, thank you"
+    feedbackDuration: 5000
+    interTrialInterval: 1000
+    trials:
+      - name: "1_mvc"
+        sequenceRef: "mvc"
+
+sequences:
+  mvc:
+    frequency: 1000
+    valuesLeft: [.05,.05,.05,.05,.05]

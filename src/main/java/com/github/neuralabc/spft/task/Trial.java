@@ -1,5 +1,6 @@
 package com.github.neuralabc.spft.task;
 
+import com.github.neuralabc.spft.hardware.TriggerSender;
 import com.github.neuralabc.spft.task.config.SequenceConfig;
 import com.github.neuralabc.spft.task.config.TrialConfig;
 import com.github.neuralabc.spft.task.output.OutputSection;
@@ -21,13 +22,15 @@ import java.util.concurrent.CountDownLatch;
 public class Trial {
     private static final Logger LOG = LoggerFactory.getLogger(Trial.class);
     private final TrialConfig config;
+    private final TriggerSender triggerSender;
     private final SequenceConfig sequence;
     private final CountDownLatch sync;
     private OutputSection leftReferenceOutput;
     private OutputSection rightReferenceOutput;
 
-    public Trial(TrialConfig config, Map<String, SequenceConfig> sequencesPool) {
+    public Trial(TrialConfig config, Map<String, SequenceConfig> sequencesPool, TriggerSender triggerSender) {
         this.config = config;
+        this.triggerSender = triggerSender;
         this.sequence = sequencesPool.get(config.getSequenceRef());
         if (hasLeftSequence()) {
             String sectionName = "leftReference";
@@ -45,19 +48,30 @@ public class Trial {
 
     public void run(ExperimentFrame.Binding binding, Path outputFile) throws InterruptedException, IOException {
         LOG.info("\t\tStarting trial '{}'", config.getName());
-        LOG.info("\t\tFrequency: '{}' Hz", sequence.getFrequency());
-        LOG.info("\t\tExpected | Actual Delay: '{} | {}' ms", 1000f/sequence.getFrequency(),Math.round(1000f/sequence.getFrequency()));
+        LOG.info("\t\t\tPresentation frequency: {} ms/value, {} Hz", sequence.getFrequency(), String.format("%.2f",1f/sequence.getFrequency()*1000));
         
-        int delay = Math.round(1000f / sequence.getFrequency());
+        int delay = sequence.getFrequency();
         Presentation presentation = new Presentation(binding);
         Timer timer = new Timer(delay, presentation);
         timer.setInitialDelay(0);
         timer.setRepeats(true);
+
+        triggerSender.sendStart(); // trigger to indicate start of trial
+
         timer.start();
 
         sync.await();
+
+        triggerSender.sendStop(); // trigger to indicate stop (no different from start trigger)
+        
         timer.stop();
         writeOutput(outputFile);
+
+        // at the end of every trial we also reset the reference values to the min value
+        // to indicate the trial has ended and ensure that the participant does not move
+        // to the last position of the previous trial
+        binding.setLeftReferenceValue(0.0);
+        binding.setRightReferenceValue(0.0);
     }
 
     private void writeOutput(Path outputFile) throws IOException {
