@@ -37,8 +37,9 @@ public class ControlFrame extends JFrame {
 
         pack();
 
-        //scale the window to ensure that everything fits, using the same factor based on DPI
-        scaleFrameSize(this, scaleFactor);
+        // //scale the window to ensure that everything fits, using the same factor based on DPI
+        // //may not be necessary
+        // scaleFrameSize(this, scaleFactor);
     }
 
     // Utility method to calculate scale factor
