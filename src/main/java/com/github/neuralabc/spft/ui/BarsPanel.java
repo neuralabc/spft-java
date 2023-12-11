@@ -28,19 +28,23 @@ public class BarsPanel extends JPanel {
     private double forceRangeMax = 1;
 
     public BarsPanel() {
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        // Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        // Get the current display mode
+        DisplayMode displayMode = device.getDisplayMode();
+
         final double heightFactor = 0.463;
-        int calculatedMaxHeight = (int) Math.round(heightFactor * screenSize.height);
+        int calculatedMaxHeight = (int) Math.round(heightFactor * displayMode.getHeight());
         maxHeight = Integer.getInteger("spft.ui.bars.maxHeight", calculatedMaxHeight);
 
         minHeight = Integer.getInteger("spft.ui.bars.minHeight", DEFAULT_MIN_HEIGHT);
 
         final double widthFactor = 0.052;
-        int calculatedWidth = (int) Math.round(widthFactor * screenSize.width);
+        int calculatedWidth = (int) Math.round(widthFactor * displayMode.getWidth());
         barWidth = Integer.getInteger("spft.ui.bars.width", calculatedWidth);
 
         final double separationFactor = 0.08;
-        int calculatedSeparation = (int) Math.round(separationFactor * screenSize.width);
+        int calculatedSeparation = (int) Math.round(separationFactor * displayMode.getWidth());
         int barSeparation = Integer.getInteger("spft.ui.bars.separation", calculatedSeparation);
         Dimension separator = new Dimension(barSeparation, 0);
 

@@ -15,22 +15,67 @@ public class ExperimentFrame extends JFrame {
 
     public ExperimentFrame() throws HeadlessException {
         binding = new Binding();
-        setResizable(false);
+
+
+        // Calculate scale factor based on DPI
+        double scaleFactor = getScaleFactor();
+
+        setResizable(true);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setUndecorated(true);
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        textPanel = new TextPanel(screenSize.height / 4);
+        // Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        // Get the current display mode
+        DisplayMode displayMode = device.getDisplayMode();
+        // System.out.println("Screensize Height " + screenSize.height);
+        // TODO: this is not fixed on WINDOWS machines, looks to m
+
+        textPanel = new TextPanel(displayMode.getHeight() / 4);
         add(textPanel, BorderLayout.NORTH);
         barsPanel = new BarsPanel();
         add(barsPanel, BorderLayout.CENTER);
 
         pack();
+        //scale the window to ensure that everything fits, using the same factor based on DPI
+        //may not be necessary
+        // scaleFrameSize(this, scaleFactor);
     }
 
     public Binding getBinding() {
         return binding;
     }
 
+    private static void scaleFrameSize(JFrame frame, double scaleFactor) {
+        Dimension size = frame.getSize();
+        size.width *= scaleFactor;
+        size.height *= scaleFactor;
+        frame.setSize(size);
+    }
+
+        // Utility method to calculate scale factor
+    private double getScaleFactor() {
+        GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+
+        // Get the current display mode
+        DisplayMode displayMode = device.getDisplayMode();
+
+        if (displayMode != null) {
+            // Print out display mode details
+            System.out.println("--Display mode details--");
+            System.out.println("Width: " + displayMode.getWidth());
+            System.out.println("Height: " + displayMode.getHeight());
+            System.out.println("Bit Depth: " + displayMode.getBitDepth());
+            System.out.println("Refresh Rate: " + displayMode.getRefreshRate());
+        } else {
+            System.out.println("Display Mode is not available");
+        }
+
+        int defaultDPI = 96;
+        int currentDPI = Toolkit.getDefaultToolkit().getScreenResolution();
+        System.out.println("Current system DPI: " + currentDPI);
+        return (double) currentDPI / defaultDPI;
+    }
+    
     public class Binding {
 
         public void showText(String text) {

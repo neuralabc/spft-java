@@ -36,10 +36,6 @@ public class ControlFrame extends JFrame {
         setContentPane(controlContent.getPanel());
 
         pack();
-
-        // //scale the window to ensure that everything fits, using the same factor based on DPI
-        // //may not be necessary
-        // scaleFrameSize(this, scaleFactor);
     }
 
     // Utility method to calculate scale factor
@@ -77,12 +73,7 @@ public class ControlFrame extends JFrame {
         }
     }
 
-    private static void scaleFrameSize(JFrame frame, double scaleFactor) {
-        Dimension size = frame.getSize();
-        size.width *= scaleFactor;
-        size.height *= scaleFactor;
-        frame.setSize(size);
-    }
+
 
     public static void main(String[] args) {
         if (Boolean.getBoolean("debug")) {
