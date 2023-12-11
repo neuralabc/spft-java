@@ -1,11 +1,5 @@
 package com.github.neuralabc.spft.ui;
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GraphicsEnvironment;
-import java.awt.HeadlessException;
-import java.awt.Toolkit;
-
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -92,6 +86,11 @@ public class ControlFrame extends JFrame {
 
     private static void createAndShowGui() {
         ExperimentFrame experimentFrame = new ExperimentFrame();
+        
+        // Get the current display mode to scale screen appropriately
+        GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        DisplayMode displayMode = device.getDisplayMode();
+        experimentFrame.setSize(displayMode.getWidth(),displayMode.getHeight());
         experimentFrame.setVisible(true);
 
         JFrame controlFrame = new ControlFrame(experimentFrame.getBinding());

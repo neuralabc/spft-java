@@ -17,42 +17,29 @@ public class ExperimentFrame extends JFrame {
         binding = new Binding();
 
 
-        // Calculate scale factor based on DPI
-        double scaleFactor = getScaleFactor();
+        // // Calculate scale factor based on DPI
+        // double scaleFactor = getScaleFactor();
 
-        setResizable(true);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setResizable(false);
+        // setExtendedState(JFrame.MAXIMIZED_BOTH);
         setUndecorated(true);
         // Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         // Get the current display mode
         DisplayMode displayMode = device.getDisplayMode();
-        // System.out.println("Screensize Height " + screenSize.height);
-        // TODO: this is not fixed on WINDOWS machines, looks to m
 
         textPanel = new TextPanel(displayMode.getHeight() / 4);
         add(textPanel, BorderLayout.NORTH);
         barsPanel = new BarsPanel();
         add(barsPanel, BorderLayout.CENTER);
-
         pack();
-        //scale the window to ensure that everything fits, using the same factor based on DPI
-        //may not be necessary
-        // scaleFrameSize(this, scaleFactor);
     }
 
     public Binding getBinding() {
         return binding;
     }
 
-    private static void scaleFrameSize(JFrame frame, double scaleFactor) {
-        Dimension size = frame.getSize();
-        size.width *= scaleFactor;
-        size.height *= scaleFactor;
-        frame.setSize(size);
-    }
-
-        // Utility method to calculate scale factor
+    // Utility method to calculate scale factor
     private double getScaleFactor() {
         GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 
