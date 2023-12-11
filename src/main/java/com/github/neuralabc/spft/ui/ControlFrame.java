@@ -105,9 +105,11 @@ public class ControlFrame extends JFrame {
         if (osName.contains("windows")) {
             // Windows-specific code
             experimentFrame.setSize((int)(800),(int)(600)); // start it small so that we can maximize it
+            // experimentFrame.setSize((int)(width),(int)(height));
         } else if (osName.contains("linux")) {
             // Linux-specific code
             experimentFrame.setSize((int)(width),(int)(height));
+            // experimentFrame.setSize((int)(800),(int)(600)); // start it small so that we can maximize it
         } else {
             // Code for other operating systems
             System.out.println("Your system OS is currently not supported");
