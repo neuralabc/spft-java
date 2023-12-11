@@ -17,13 +17,11 @@ public class ExperimentFrame extends JFrame {
         binding = new Binding();
 
 
-        // // Calculate scale factor based on DPI
-        // double scaleFactor = getScaleFactor();
-
-        setResizable(false);
+        setResizable(true);
         // setExtendedState(JFrame.MAXIMIZED_BOTH);
-        setUndecorated(true);
-        // Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        setUndecorated(false);
+        // Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize(); //this was the original way using Toolkit, which also worked fine
+        // this provides acess to more information
         GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         // Get the current display mode
         DisplayMode displayMode = device.getDisplayMode();
@@ -39,29 +37,29 @@ public class ExperimentFrame extends JFrame {
         return binding;
     }
 
-    // Utility method to calculate scale factor
-    private double getScaleFactor() {
-        GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+    // // Utility method to calculate scale factor
+    // private double getScaleFactor() {
+    //     GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 
-        // Get the current display mode
-        DisplayMode displayMode = device.getDisplayMode();
+    //     // Get the current display mode
+    //     DisplayMode displayMode = device.getDisplayMode();
 
-        if (displayMode != null) {
-            // Print out display mode details
-            System.out.println("--Display mode details--");
-            System.out.println("Width: " + displayMode.getWidth());
-            System.out.println("Height: " + displayMode.getHeight());
-            System.out.println("Bit Depth: " + displayMode.getBitDepth());
-            System.out.println("Refresh Rate: " + displayMode.getRefreshRate());
-        } else {
-            System.out.println("Display Mode is not available");
-        }
+    //     if (displayMode != null) {
+    //         // Print out display mode details
+    //         System.out.println("--Display mode details--");
+    //         System.out.println("Width: " + displayMode.getWidth());
+    //         System.out.println("Height: " + displayMode.getHeight());
+    //         System.out.println("Bit Depth: " + displayMode.getBitDepth());
+    //         System.out.println("Refresh Rate: " + displayMode.getRefreshRate());
+    //     } else {
+    //         System.out.println("Display Mode is not available");
+    //     }
 
-        int defaultDPI = 96;
-        int currentDPI = Toolkit.getDefaultToolkit().getScreenResolution();
-        System.out.println("Current system DPI: " + currentDPI);
-        return (double) currentDPI / defaultDPI;
-    }
+    //     int defaultDPI = 96;
+    //     int currentDPI = Toolkit.getDefaultToolkit().getScreenResolution();
+    //     System.out.println("Current system DPI: " + currentDPI);
+    //     return (double) currentDPI / defaultDPI;
+    // }
     
     public class Binding {
 

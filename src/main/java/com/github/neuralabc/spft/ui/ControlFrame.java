@@ -86,13 +86,33 @@ public class ControlFrame extends JFrame {
 
     private static void createAndShowGui() {
         ExperimentFrame experimentFrame = new ExperimentFrame();
+
+        int defaultDPI = 96;
+        int currentDPI = Toolkit.getDefaultToolkit().getScreenResolution();
+        System.out.println("Current system DPI: " + currentDPI);
+        double scaleFactor = (double) currentDPI / defaultDPI;
+        String osName = System.getProperty("os.name").toLowerCase();
+        System.out.println("Current OS: " + osName);
+
+
         
         // Get the current display mode to scale screen appropriately
         GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         DisplayMode displayMode = device.getDisplayMode();
-        experimentFrame.setSize(displayMode.getWidth(),displayMode.getHeight());
-        experimentFrame.setVisible(true);
+        int width = displayMode.getWidth();
+        int height = displayMode.getHeight();
 
+        if (osName.contains("windows")) {
+            // Windows-specific code
+            experimentFrame.setSize((int)(800),(int)(600)); // start it small so that we can maximize it
+        } else if (osName.contains("linux")) {
+            // Linux-specific code
+            experimentFrame.setSize((int)(width),(int)(height));
+        } else {
+            // Code for other operating systems
+            System.out.println("Your system OS is currently not supported");
+        }
+        experimentFrame.setVisible(true);
         JFrame controlFrame = new ControlFrame(experimentFrame.getBinding());
         controlFrame.setVisible(true);
     }
