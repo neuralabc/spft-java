@@ -1,7 +1,7 @@
 Bx processing in python must be completed in a custom environment to ensure all the nessesary packages/ versions are present.
 
 To create a custom environment with the correct packages, when logged in on the server please
-1. ENTER: conda create -n SPFT python=3.9 jupyterlab=3.6.3 scipy numpy pandas matplotlib
+1. ENTER: conda create -n SPFT python=3.9 jupyterlab=3.6.3 scipy=1.11.3 numpy=1.24.3 pandas=2.0.3 matplotlib=3.7.2
 2. ENTER: conda activate SPFT
 3. ENTER: conda install -c conda-forge tslearn=0.6.2
 
