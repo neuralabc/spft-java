@@ -70,8 +70,8 @@ public class Trial {
         // at the end of every trial we also reset the reference values to the min value
         // to indicate the trial has ended and ensure that the participant does not move
         // to the last position of the previous trial
-        binding.setLeftReferenceValue(0.0);
-        binding.setRightReferenceValue(0.0);
+        binding.setLeftReferenceValue(0.0); //TODO: could implement a flash to indicate the end of the block
+        binding.setRightReferenceValue(0.0); //XXX
     }
 
     private void writeOutput(Path outputFile) throws IOException {
