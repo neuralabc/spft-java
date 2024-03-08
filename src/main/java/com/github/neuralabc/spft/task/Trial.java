@@ -67,11 +67,11 @@ public class Trial {
         timer.stop();
         writeOutput(outputFile);
 
-        // at the end of every trial we also reset the reference values to the min value
+        // at the end of every trial we also reset the reference values to the middle (0.5)
         // to indicate the trial has ended and ensure that the participant does not move
         // to the last position of the previous trial
-        binding.setLeftReferenceValue(0.0); //TODO: could implement a flash to indicate the end of the block
-        binding.setRightReferenceValue(0.0); //XXX
+        binding.setLeftReferenceValue(0.5); //TODO: could implement a flash to indicate the end of the block
+        binding.setRightReferenceValue(0.5);
     }
 
     private void writeOutput(Path outputFile) throws IOException {
