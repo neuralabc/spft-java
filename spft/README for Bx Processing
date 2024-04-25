@@ -1,14 +1,21 @@
-Bx processing in python must be completed in a custom environment to ensure all the nessesary packages/ versions are present.
+###SPFT Behavioural processing in python must be completed in a custom environment to ensure all the nessesary packages/ versions are present. 
+A custom environment must be created using an Lmod Module System, which is already present on the server
 
-To create a custom environment with the correct packages, when logged in on the server please
-1. ENTER: conda create -n SPFT python=3.9 jupyterlab=3.6.3 scipy=1.11.3 numpy=1.24.3 pandas=2.0.3 matplotlib=3.7.2
-2. ENTER: conda activate SPFT
-3. ENTER: conda install -c conda-forge tslearn=0.6.2
+To create a custom environment with the correct packages on the server please ENTER each of the following lines seperately:
+```
+conda create -n SPFT python=3.9 jupyterlab=3.6.3 scipy=1.11.3 numpy=1.24.3 pandas=2.0.3 matplotlib=3.7.2
+conda activate SPFT
+conda install -c conda-forge tslearn=0.6.2
+```
 
 Once your custom environment is installed you must enter the environment in a very specific way for the packages to load correctly in python.
-1. Make sure you're in the base environment, if not ENTER: conda deactivate
-2. ENTER: module load anaconda3
-3. ENTER: conda activate SPFT
-4. ENTER: jupyter lab
+First, make sure you're in the base environment, if not ENTER: `conda deactivate`
 
-Then port forward as normal to your jupyter notebook.
+Once in the base environment please ENTER each of the following lines seperately:
+```
+module load anaconda
+conda activate SPFT
+jupyter lab
+```
+
+Finally, you port forward as normal to your jupyter notebook and begin behavioural processing.
